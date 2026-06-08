@@ -1,0 +1,4962 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Zlzl MVP 学习库首页</title>
+<link rel="icon" href="data:," />
+<style>
+  :root {
+    --stage: #eceeed;
+    --page: #f8f9f8;
+    --panel: #ffffff;
+    --ink: #111827;
+    --body: #374151;
+    --muted: #8a928f;
+    --line: #dfe3e1;
+    --line-dark: #cfd6d3;
+    --shadow: 0 18px 54px rgba(17, 24, 39, .14);
+  }
+
+  * { box-sizing: border-box; }
+
+  html,
+  body {
+    margin: 0;
+    min-height: 100%;
+  }
+
+  body {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: var(--stage);
+    color: var(--ink);
+    font-family: "PingFang SC", "Microsoft YaHei", "HarmonyOS Sans SC", system-ui, sans-serif;
+    letter-spacing: 0;
+  }
+
+  button,
+  input {
+    font: inherit;
+  }
+
+  button {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .phone {
+    width: min(390px, calc(100vw - 32px));
+    height: min(844px, calc(100vh - 32px));
+    min-height: 740px;
+    padding: 10px;
+    border: 1px solid #151817;
+    border-radius: 34px;
+    background: #151817;
+    box-shadow: var(--shadow);
+  }
+
+  .screen {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 26px;
+    background: var(--page);
+  }
+
+  .statusbar {
+    height: 42px;
+    padding: 12px 18px 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .phone-state {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .signal {
+    display: flex;
+    align-items: end;
+    gap: 2px;
+    height: 12px;
+  }
+
+  .signal span {
+    width: 3px;
+    border-radius: 3px;
+    background: var(--ink);
+  }
+
+  .signal span:nth-child(1) { height: 5px; opacity: .48; }
+  .signal span:nth-child(2) { height: 8px; opacity: .68; }
+  .signal span:nth-child(3) { height: 11px; }
+
+  .battery {
+    width: 22px;
+    height: 11px;
+    padding: 2px;
+    border: 1.5px solid var(--ink);
+    border-radius: 3px;
+  }
+
+  .battery::after {
+    content: "";
+    display: block;
+    width: 70%;
+    height: 100%;
+    border-radius: 1px;
+    background: var(--ink);
+  }
+
+  .app {
+    position: relative;
+    height: calc(100% - 42px);
+    overflow: hidden;
+  }
+
+  .view {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    z-index: 0;
+    visibility: hidden;
+    background: var(--page);
+    opacity: 0;
+    transform: translateX(14px);
+    pointer-events: none;
+    transition: transform .16s ease;
+  }
+
+  .view.active {
+    z-index: 2;
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+
+  .topbar {
+    min-height: 60px;
+    padding: 8px 16px 10px;
+    display: grid;
+    grid-template-columns: 40px 1fr 88px;
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+    background: rgba(248, 249, 248, .94);
+    backdrop-filter: blur(14px);
+  }
+
+  .topbar.simple {
+    grid-template-columns: 40px 1fr 52px;
+  }
+
+  .topbar h1 {
+    margin: 0;
+    text-align: center;
+    font-size: 20px;
+    line-height: 1.2;
+    font-weight: 650;
+  }
+
+  .top-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .icon-button {
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border-radius: 8px;
+  }
+
+  .text-button {
+    min-width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .icon {
+    position: relative;
+    width: 18px;
+    height: 18px;
+    display: inline-block;
+  }
+
+  .icon-menu::before,
+  .icon-menu::after,
+  .icon-menu span {
+    content: "";
+    position: absolute;
+    left: 2px;
+    width: 14px;
+    height: 1.8px;
+    border-radius: 2px;
+    background: currentColor;
+  }
+
+  .icon-menu::before { top: 4px; }
+  .icon-menu span { top: 9px; }
+  .icon-menu::after { top: 14px; }
+
+  .icon-plus::before,
+  .icon-plus::after {
+    content: "";
+    position: absolute;
+    left: 8px;
+    top: 3px;
+    width: 1.8px;
+    height: 14px;
+    border-radius: 2px;
+    background: currentColor;
+  }
+
+  .icon-plus::after { transform: rotate(90deg); }
+
+  .icon-search::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 2px;
+    width: 10px;
+    height: 10px;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+  }
+
+  .icon-search::after {
+    content: "";
+    position: absolute;
+    left: 12px;
+    top: 13px;
+    width: 7px;
+    height: 2px;
+    border-radius: 2px;
+    background: currentColor;
+    transform: rotate(45deg);
+    transform-origin: left center;
+  }
+
+  .icon-close::before,
+  .icon-close::after {
+    content: "";
+    position: absolute;
+    left: 8px;
+    top: 3px;
+    width: 1.8px;
+    height: 14px;
+    border-radius: 2px;
+    background: currentColor;
+  }
+
+  .icon-close::before { transform: rotate(45deg); }
+  .icon-close::after { transform: rotate(-45deg); }
+
+  .back-mark::before {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 4px;
+    width: 10px;
+    height: 10px;
+    border-left: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg);
+  }
+
+  .create-popover,
+  .action-menu {
+    position: absolute;
+    z-index: 10;
+    width: 156px;
+    padding: 6px;
+    border: 1px solid var(--line-dark);
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 12px 30px rgba(17, 24, 39, .12);
+    opacity: 0;
+    transform: translateY(-6px);
+    pointer-events: none;
+    transition: opacity .16s ease, transform .16s ease;
+  }
+
+  .create-popover {
+    right: 14px;
+    top: 58px;
+  }
+
+  .action-menu {
+    width: 112px;
+  }
+
+  .create-popover.open,
+  .action-menu.open {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .menu-option {
+    width: 100%;
+    min-height: 36px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .menu-option:hover {
+    background: #f3f5f4;
+  }
+
+  .menu-option.disabled {
+    color: #b4bab7;
+    cursor: default;
+  }
+
+  .menu-option.disabled:hover {
+    background: transparent;
+  }
+
+  .menu-option.hidden {
+    display: none;
+  }
+
+  .search-panel {
+    display: none;
+    padding: 8px 14px 10px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(248, 249, 248, .96);
+  }
+
+  .app.searching .search-panel {
+    display: block;
+  }
+
+  .search-box {
+    height: 52px;
+    display: grid;
+    grid-template-columns: 34px 1fr 34px;
+    gap: 8px;
+    align-items: center;
+    padding: 0 10px;
+    border: 2px solid #606463;
+    border-radius: 10px;
+    background: #f8f8f8;
+  }
+
+  .search-box input {
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--ink);
+    font-size: 20px;
+    line-height: 1.2;
+  }
+
+  .search-box input::placeholder {
+    color: #b8bbb9;
+  }
+
+  .content {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    padding: 14px 16px 96px;
+    scrollbar-width: none;
+  }
+
+  .content::-webkit-scrollbar {
+    display: none;
+  }
+
+  .folder-list {
+    display: grid;
+    gap: 10px;
+  }
+
+  .folder {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--panel);
+    overflow: hidden;
+  }
+
+  .folder.drag-over {
+    outline: 2px solid #a8adab;
+    outline-offset: -2px;
+  }
+
+  .folder.insert-before,
+  .library.insert-before {
+    box-shadow: inset 0 2px 0 #9ca3af;
+  }
+
+  .folder.insert-after,
+  .library.insert-after {
+    box-shadow: inset 0 -2px 0 #9ca3af;
+  }
+
+  .folder-header {
+    min-height: 58px;
+    padding: 0 12px;
+    display: grid;
+    grid-template-columns: 28px 26px 1fr 24px;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .more-button {
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    color: var(--muted);
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  .chevron-button {
+    width: 28px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    color: var(--muted);
+    font-size: 17px;
+    line-height: 1;
+  }
+
+  .chevron {
+    display: block;
+    transform: rotate(90deg);
+    transition: transform .16s ease;
+  }
+
+  .folder.collapsed .chevron {
+    transform: rotate(0deg);
+  }
+
+  .folder-title,
+  .library-title {
+    min-width: 0;
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.3;
+    font-weight: 650;
+  }
+
+  .folder-title {
+    cursor: grab;
+  }
+
+  .drag-grip {
+    width: 24px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    color: #b8bfbc;
+    font-size: 13px;
+    line-height: 1;
+    cursor: grab;
+  }
+
+  .folder-body {
+    display: grid;
+    gap: 0;
+    padding: 0 10px 10px;
+  }
+
+  .folder.collapsed .folder-body {
+    display: none;
+  }
+
+  .library {
+    min-height: 54px;
+    padding: 0 12px;
+    display: grid;
+    grid-template-columns: 28px 1fr 24px;
+    gap: 8px;
+    align-items: center;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    cursor: grab;
+  }
+
+  .bottom-nav {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 10px 18px 18px;
+    display: grid;
+    grid-template-columns: 1fr 74px 1fr;
+    gap: 10px;
+    border-top: 1px solid var(--line);
+    background: rgba(248, 249, 248, .94);
+    backdrop-filter: blur(16px);
+  }
+
+  .tab {
+    min-height: 48px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .tab.active {
+    color: var(--ink);
+    background: var(--panel);
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
+
+  .copilot-tab {
+    width: 58px;
+    height: 58px;
+    place-self: center;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--line-dark);
+    border-radius: 50%;
+    background: var(--ink);
+    color: #fff;
+    box-shadow: 0 10px 24px rgba(17, 24, 39, .18);
+  }
+
+  .bird-mark {
+    width: 30px;
+    height: 30px;
+    display: block;
+  }
+
+  .mine-hero {
+    display: grid;
+    gap: 8px;
+    padding: 18px 0 10px;
+  }
+
+  .mine-profile {
+    display: grid;
+    grid-template-columns: 58px 1fr;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .avatar {
+    width: 58px;
+    height: 58px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--ink);
+    color: #fff;
+    font-size: 22px;
+    font-weight: 760;
+  }
+
+  .mine-profile h2 {
+    margin: 0 0 4px;
+    color: var(--ink);
+    font-size: 23px;
+    line-height: 1.2;
+    font-weight: 760;
+  }
+
+  .mine-profile p,
+  .mine-section p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .mine-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .mine-stat {
+    min-height: 70px;
+    padding: 12px;
+    display: grid;
+    align-content: center;
+    gap: 4px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+  }
+
+  .mine-stat strong {
+    color: var(--ink);
+    font-size: 21px;
+    line-height: 1;
+    font-weight: 780;
+  }
+
+  .mine-stat span {
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .mine-section {
+    margin-top: 12px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+  }
+
+  .mine-section-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: baseline;
+    margin-bottom: 12px;
+  }
+
+  .mine-section h3 {
+    margin: 0;
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.25;
+    font-weight: 740;
+  }
+
+  .mine-section-head span {
+    color: var(--muted);
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .heatmap {
+    display: grid;
+    grid-template-rows: repeat(7, 12px);
+    grid-auto-flow: column;
+    grid-auto-columns: 12px;
+    gap: 4px;
+    overflow: hidden;
+  }
+
+  .heat-cell {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    background: #e8ebe9;
+  }
+
+  .heat-cell.lv1 { background: #c9dcfb; }
+  .heat-cell.lv2 { background: #8fb5f0; }
+  .heat-cell.lv3 { background: #4f86e8; }
+  .heat-cell.lv4 { background: #2563d8; }
+
+  .mine-row {
+    min-height: 54px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: center;
+    border-top: 1px solid var(--line);
+  }
+
+  .mine-row:first-child {
+    border-top: 0;
+  }
+
+  .mine-row strong {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.25;
+  }
+
+  .mine-row span {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .mine-row em {
+    color: var(--ink);
+    font-style: normal;
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .setting-list {
+    display: grid;
+  }
+
+  .scrim {
+    position: absolute;
+    inset: 0;
+    z-index: 7;
+    background: rgba(17, 24, 39, .22);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .18s ease;
+  }
+
+  .sidebar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 8;
+    width: min(304px, 82vw);
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--line-dark);
+    background: #ffffff;
+    transform: translateX(-102%);
+    transition: transform .2s ease;
+  }
+
+  .app.sidebar-open .scrim {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .app.sidebar-open .sidebar {
+    transform: translateX(0);
+  }
+
+  .sidebar-head {
+    min-height: 54px;
+    display: grid;
+    grid-template-columns: 1fr 40px;
+    gap: 8px;
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .sidebar-head strong {
+    display: block;
+    font-size: 17px;
+    line-height: 1.25;
+    font-weight: 650;
+  }
+
+  .sidebar-list {
+    padding-top: 16px;
+    display: grid;
+    gap: 18px;
+  }
+
+  .sidebar-title {
+    margin: 0 0 6px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.2;
+    font-weight: 600;
+  }
+
+  .sidebar-item {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+    color: var(--body);
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  .form {
+    display: grid;
+    gap: 18px;
+  }
+
+  .field {
+    display: grid;
+    gap: 8px;
+  }
+
+  .field-label {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.2;
+    font-weight: 600;
+  }
+
+  .text-input {
+    width: 100%;
+    height: 46px;
+    padding: 0 12px;
+    border: 1px solid var(--line-dark);
+    border-radius: 8px;
+    outline: 0;
+    background: #fff;
+    color: var(--ink);
+    font-size: 16px;
+  }
+
+  .type-grid,
+  .tag-grid,
+  .upload-methods {
+    display: grid;
+    gap: 8px;
+  }
+
+  .type-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tag-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .choice {
+    min-height: 44px;
+    padding: 0 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--body);
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .choice.active {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+
+  .upload-methods {
+    margin-top: 4px;
+  }
+
+  .upload-panel {
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+    display: grid;
+    gap: 10px;
+  }
+
+  .upload-panel h3 {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.25;
+    font-weight: 650;
+  }
+
+  .local-drop {
+    min-height: 116px;
+    padding: 12px;
+    display: grid;
+    place-items: center;
+    border: 1px dashed var(--line-dark);
+    border-radius: 8px;
+    background: #f5f6f5;
+    color: #8d9390;
+    text-align: center;
+    font-size: 32px;
+    line-height: 1;
+    font-weight: 300;
+    cursor: pointer;
+  }
+
+  .link-area {
+    width: 100%;
+    height: 116px;
+    min-height: 116px;
+    padding: 12px;
+    resize: none;
+    border: 0;
+    border-radius: 8px;
+    outline: 0;
+    background: #f5f6f5;
+    color: var(--ink);
+    font: inherit;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  .link-area::placeholder {
+    color: #b6bbba;
+  }
+
+  .upload-note {
+    margin: 0;
+    color: #9ca3a0;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .upload-foot {
+    display: grid;
+    grid-template-columns: 1fr 84px;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .import-button {
+    min-height: 36px;
+    border-radius: 8px;
+    background: #bdbfbe;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 650;
+  }
+
+  .skip-button {
+    width: 100%;
+    min-height: 42px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .primary-button {
+    width: 100%;
+    min-height: 46px;
+    border-radius: 8px;
+    background: var(--ink);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 650;
+  }
+
+  .modal {
+    position: absolute;
+    inset: 0;
+    z-index: 12;
+    display: none;
+    place-items: center;
+    padding: 20px;
+    background: rgba(17, 24, 39, .24);
+  }
+
+  .modal.open {
+    display: grid;
+  }
+
+  .dialog {
+    width: 100%;
+    max-width: 330px;
+    padding: 18px;
+    border: 1px solid var(--line-dark);
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 18px 44px rgba(17, 24, 39, .18);
+  }
+
+  .dialog h2 {
+    margin: 0 0 16px;
+    font-size: 18px;
+    line-height: 1.3;
+    font-weight: 650;
+  }
+
+  .swatches {
+    margin-top: 16px;
+  }
+
+  .swatch-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+  }
+
+  .swatch {
+    aspect-ratio: 1;
+    border: 1px solid var(--line-dark);
+    border-radius: 8px;
+    background: var(--swatch);
+  }
+
+  .swatch[data-color=""] {
+    background:
+      linear-gradient(135deg, transparent 46%, #cfd6d3 48%, #cfd6d3 52%, transparent 54%),
+      #fff;
+  }
+
+  .swatch.active {
+    box-shadow: 0 0 0 2px #111827;
+  }
+
+  .dialog-actions {
+    margin-top: 18px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .dialog-button {
+    min-height: 42px;
+    border: 1px solid var(--line-dark);
+    border-radius: 8px;
+    background: #fff;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .dialog-button.primary {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: #fff;
+  }
+
+  #libraryView .content {
+    display: flex;
+    flex-direction: column;
+    padding: 14px 16px 20px;
+  }
+
+  #libraryEntries {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .library-stage {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .start-class-bar {
+    display: grid;
+    grid-template-columns: 34px 1fr 18px;
+    align-items: center;
+    gap: 10px;
+    min-height: 58px;
+    padding: 0 14px;
+    border-radius: 10px;
+    background: var(--ink);
+    text-align: left;
+  }
+
+  .sc-badge {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .14);
+  }
+
+  .sc-badge::after {
+    content: "";
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ff6b5e;
+  }
+
+  .sc-text { min-width: 0; }
+  .sc-title { display: block; color: #fff; font-size: 16px; font-weight: 650; }
+  .sc-sub { display: none; }
+  .sc-arrow { justify-self: end; color: rgba(255, 255, 255, .55); font-size: 18px; line-height: 1; }
+
+  .empty-blocks {
+    display: grid;
+    gap: 12px;
+  }
+
+  .block-card {
+    min-height: 112px;
+    padding: 16px 14px;
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--panel);
+    text-align: center;
+  }
+
+  .bc-icon {
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: #f1f3f2;
+    color: var(--ink);
+  }
+
+  .bc-icon svg { width: 20px; height: 20px; }
+  .bc-text { display: flex; flex-direction: column; gap: 4px; }
+  .bc-title { color: var(--ink); font-size: 17px; font-weight: 650; }
+  .bc-sub { color: var(--muted); font-size: 13px; line-height: 1.5; }
+
+  .block-card.locked {
+    background: #f1f2f1;
+    border-style: dashed;
+    cursor: default;
+  }
+
+  .block-card.locked .bc-icon { background: #e7e9e8; color: var(--muted); }
+  .block-card.locked .bc-title { color: var(--muted); }
+
+  .learn-stage {
+    display: grid;
+    gap: 12px;
+  }
+
+  .library-progress-card {
+    padding: 12px 14px;
+    display: grid;
+    gap: 9px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+  }
+
+  .progress-copy {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .progress-copy span {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .progress-copy strong {
+    display: block;
+    margin-top: 2px;
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  .progress-percent {
+    flex: 0 0 auto;
+    color: var(--ink);
+    font-size: 15px;
+    font-weight: 750;
+  }
+
+  .library-progress-line {
+    height: 6px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #e9ecea;
+  }
+
+  .library-progress-line span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--ink);
+  }
+
+  .learn-start-card {
+    min-height: 172px;
+    padding: 22px 18px;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: 12px;
+    border-radius: 12px;
+    background: var(--ink);
+    color: #fff;
+    text-align: center;
+  }
+
+  .learn-start-card .bc-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .14);
+    color: #fff;
+  }
+
+  .learn-start-card .bc-title {
+    color: #fff;
+    font-size: 22px;
+    line-height: 1.25;
+  }
+
+  .learn-start-card .bc-sub {
+    max-width: 230px;
+    color: rgba(255, 255, 255, .68);
+  }
+
+  .knowledge-card {
+    min-height: 86px;
+  }
+
+  #libraryEntries .knowledge-card {
+    min-height: 70px;
+    padding: 12px 14px;
+    grid-template-columns: 36px 1fr;
+    justify-items: start;
+    align-content: center;
+    text-align: left;
+  }
+
+  #libraryEntries .knowledge-card .bc-icon {
+    align-self: center;
+  }
+
+  .session-arrangement {
+    display: grid;
+    gap: 10px;
+  }
+
+  .session-head {
+    padding: 11px 13px;
+    display: grid;
+    gap: 5px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+  }
+
+  .session-kicker {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 650;
+  }
+
+  .session-head h2 {
+    margin: 0;
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.3;
+    font-weight: 700;
+  }
+
+  .session-head p {
+    margin: 0;
+    color: var(--body);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .session-task-list {
+    max-height: 142px;
+    overflow: auto;
+    display: grid;
+    gap: 8px;
+    padding-right: 2px;
+    scrollbar-width: none;
+  }
+
+  .session-task-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .session-task {
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 24px 1fr auto;
+    gap: 8px;
+    align-items: start;
+    border-radius: 10px;
+    background: #f1f3f2;
+  }
+
+  .task-index {
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--ink);
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .task-body {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .task-body strong {
+    color: var(--ink);
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  .task-body span {
+    color: var(--body);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .task-time {
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .session-placeholder {
+    padding: 14px;
+    display: grid;
+    gap: 6px;
+    border: 1px dashed var(--line-dark);
+    border-radius: 10px;
+    background: #f1f3f2;
+    color: var(--muted);
+  }
+
+  .session-placeholder strong {
+    color: var(--body);
+    font-size: 15px;
+    line-height: 1.35;
+  }
+
+  .session-placeholder span {
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .mastery-shell {
+    display: grid;
+    gap: 12px;
+  }
+
+  .check-progress {
+    height: 6px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #e9ecea;
+  }
+
+  .check-progress span {
+    display: block;
+    height: 100%;
+    width: 0;
+    border-radius: inherit;
+    background: var(--ink);
+    transition: width .18s ease;
+  }
+
+  .check-card {
+    padding: 16px 14px;
+    display: grid;
+    gap: 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+  }
+
+  .check-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 650;
+  }
+
+  .check-card h2 {
+    margin: 0;
+    color: var(--ink);
+    font-size: 18px;
+    line-height: 1.35;
+  }
+
+  .answer-list {
+    display: grid;
+    gap: 8px;
+  }
+
+  .answer-option {
+    min-height: 46px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--body);
+    text-align: left;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .answer-option.active {
+    border-color: var(--ink);
+    background: #f4f6f5;
+    color: var(--ink);
+    font-weight: 650;
+  }
+
+  .answer-option.good {
+    border-color: #2f7d54;
+    background: #eef7f1;
+    color: #16613a;
+  }
+
+  .answer-option.bad {
+    border-color: #b42318;
+    background: #fff1f0;
+    color: #9f1c12;
+  }
+
+  .check-input {
+    width: 100%;
+    min-height: 128px;
+    resize: none;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #f7f8f7;
+    color: var(--ink);
+    font: inherit;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  .voice-box {
+    padding: 18px 14px;
+    display: grid;
+    justify-items: center;
+    gap: 10px;
+    border-radius: 10px;
+    background: #f1f3f2;
+  }
+
+  .voice-button {
+    width: 58px;
+    height: 58px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--ink);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .voice-box p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.45;
+    text-align: center;
+  }
+
+  .check-feedback {
+    padding: 12px;
+    border-radius: 8px;
+    background: #f5f6f5;
+    color: var(--body);
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  .note-list {
+    display: grid;
+    gap: 10px;
+  }
+
+  .note-entry {
+    min-height: 78px;
+    padding: 14px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: center;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+    text-align: left;
+  }
+
+  .note-entry strong {
+    display: block;
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.35;
+  }
+
+  .note-entry span {
+    display: block;
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .note-entry em {
+    color: var(--muted);
+    font-style: normal;
+    font-size: 18px;
+  }
+
+  .note-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .note-tab {
+    min-height: 38px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--body);
+    font-size: 13px;
+    font-weight: 650;
+  }
+
+  .note-tab.active {
+    border-color: var(--ink);
+    background: #f4f6f5;
+    color: var(--ink);
+  }
+
+  .note-body {
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--body);
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .note-body p {
+    margin: 0 0 10px;
+  }
+
+  .note-body p:last-child {
+    margin-bottom: 0;
+  }
+
+  .knowledge-grid {
+    display: grid;
+    gap: 12px;
+  }
+
+  .materials-bar {
+    grid-template-columns: 40px 1fr 124px;
+  }
+
+  .material-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+
+  .tiny-button {
+    position: relative;
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .tiny-button svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .tiny-button::after {
+    content: attr(data-tip);
+    position: absolute;
+    right: 50%;
+    top: calc(100% + 8px);
+    z-index: 20;
+    min-width: max-content;
+    padding: 5px 8px;
+    border-radius: 6px;
+    background: #111827;
+    color: #fff;
+    font-size: 12px;
+    line-height: 1;
+    font-weight: 600;
+    opacity: 0;
+    transform: translate(50%, -4px);
+    pointer-events: none;
+    transition: opacity .14s ease, transform .14s ease;
+  }
+
+  .tiny-button:hover::after {
+    opacity: 1;
+    transform: translate(50%, 0);
+  }
+
+  .tiny-button.active {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+
+  .material-section {
+    display: grid;
+    gap: 8px;
+  }
+
+  .material-section h2 {
+    margin: 8px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.2;
+    font-weight: 650;
+  }
+
+  .material-list {
+    display: grid;
+    gap: 8px;
+  }
+
+  .material-list.grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .material-item {
+    min-height: 66px;
+    padding: 12px;
+    display: grid;
+    grid-template-columns: 34px 1fr;
+    gap: 10px;
+    align-items: center;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+  }
+
+  .material-list.grid .material-item {
+    min-height: 118px;
+    grid-template-columns: 1fr;
+    align-content: space-between;
+  }
+
+  .material-kind {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 8px;
+    background: #f0f2f1;
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .material-title {
+    display: block;
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.35;
+    font-weight: 650;
+  }
+
+  .material-meta {
+    display: block;
+    margin-top: 3px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .plan-form {
+    display: grid;
+    gap: 16px;
+  }
+
+  .plan-card {
+    padding: 14px;
+    display: grid;
+    gap: 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+  }
+
+  .plan-card h2 {
+    margin: 0;
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.3;
+    font-weight: 700;
+  }
+
+  .plan-card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .option-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .option-grid.three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .option-pill {
+    min-width: 0;
+    min-height: 40px;
+    padding: 0 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--body);
+    font-size: 13px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+
+  .option-pill.active {
+    border-color: var(--ink);
+    color: var(--ink);
+    background: #f4f6f5;
+  }
+
+  .range-row {
+    display: grid;
+    gap: 8px;
+  }
+
+  .range-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--body);
+    font-size: 14px;
+    font-weight: 650;
+  }
+
+  .range-head output {
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .range-input {
+    width: 100%;
+    accent-color: var(--ink);
+  }
+
+  .plan-summary {
+    display: grid;
+    gap: 8px;
+  }
+
+  .summary-row {
+    min-height: 42px;
+    padding: 0 12px;
+    display: grid;
+    grid-template-columns: 92px 1fr;
+    gap: 10px;
+    align-items: center;
+    border-radius: 8px;
+    background: #f5f6f5;
+    color: var(--body);
+    font-size: 13px;
+  }
+
+  .summary-row strong {
+    color: var(--ink);
+    font-weight: 700;
+  }
+
+  .config-foot {
+    display: grid;
+    gap: 8px;
+  }
+
+  .custom-scope {
+    display: none;
+  }
+
+  .custom-scope.open {
+    display: block;
+  }
+
+  .date-field {
+    min-height: 48px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 650;
+  }
+
+  .date-field svg {
+    width: 18px;
+    height: 18px;
+    color: var(--muted);
+  }
+
+  .date-field.tapped {
+    border-color: var(--ink);
+    background: #f4f6f5;
+  }
+
+  .stepper-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .stepper {
+    min-width: 0;
+    padding: 10px 6px;
+    display: grid;
+    gap: 8px;
+    justify-items: center;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+  }
+
+  .stepper-label {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 650;
+  }
+
+  .stepper-controls {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+  }
+
+  .stepper-button {
+    flex: 0 0 auto;
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #f7f8f7;
+    color: var(--ink);
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  .stepper-value {
+    min-width: 14px;
+    text-align: center;
+    color: var(--ink);
+    font-size: 16px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .locked-card {
+    opacity: .58;
+    cursor: not-allowed;
+  }
+
+  .locked-card .bc-icon {
+    color: var(--muted);
+    background: #f1f3f2;
+  }
+
+  .plan-stage-list {
+    display: grid;
+    gap: 10px;
+  }
+
+  .plan-stage {
+    padding: 12px;
+    display: grid;
+    gap: 7px;
+    border-radius: 8px;
+    background: #f5f6f5;
+  }
+
+  .plan-stage strong {
+    color: var(--ink);
+    font-size: 14px;
+  }
+
+  .plan-stage span {
+    color: var(--body);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .plan-unit {
+    padding: 12px;
+    display: grid;
+    gap: 10px;
+    border-radius: 8px;
+    background: #f5f6f5;
+  }
+
+  .plan-unit-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .plan-unit-head strong {
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  .plan-unit-head span {
+    flex: 0 0 auto;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .plan-unit-list {
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 7px;
+    list-style: none;
+  }
+
+  .plan-unit-list li {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    color: var(--body);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .plan-unit-list span {
+    color: var(--muted);
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .metric-card {
+    min-height: 64px;
+    padding: 10px;
+    display: grid;
+    align-content: center;
+    gap: 4px;
+    border-radius: 8px;
+    background: #f5f6f5;
+  }
+
+  .metric-card strong {
+    color: var(--ink);
+    font-size: 17px;
+    font-weight: 750;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .metric-card span {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .range-note {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .topbar.class-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .cb-left {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .wave-wrap {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .mark-layer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -4px;
+    height: 0;
+    pointer-events: none;
+  }
+
+  .mark-chip {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    padding: 6px 12px;
+    border-radius: 999px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    animation: chipFloat .9s ease forwards;
+  }
+
+  .mark-chip.q { background: #d97706; }
+  .mark-chip.k { background: #7c6fd6; }
+
+  @keyframes chipFloat {
+    0% { opacity: 0; transform: translate(-50%, 10px) scale(.92); }
+    22% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -30px) scale(1); }
+  }
+
+  .waveform.pulse { animation: wavePulse .5s ease; }
+
+  @keyframes wavePulse {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.07); }
+    100% { transform: scale(1); }
+  }
+
+  .waveform.paused span {
+    animation-play-state: paused;
+    opacity: .4;
+  }
+
+  .rec-state.paused { color: var(--muted); }
+  .rec-state.paused .rec-dot { background: var(--muted); animation: none; }
+
+  .class-tool.active { color: #fff; }
+  .class-tool.q.active { background: #d97706; }
+  .class-tool.k.active { background: #7c6fd6; }
+
+  .class-name {
+    color: var(--ink);
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .rec-state {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #b42318;
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .rec-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #b42318;
+    animation: recPulse 1.2s ease-in-out infinite;
+  }
+
+  @keyframes recPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .35; }
+  }
+
+  .capture {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding-top: 18px;
+  }
+
+  .class-timer {
+    color: var(--ink);
+    font-size: 46px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 1px;
+  }
+
+  .class-sub {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .waveform {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 64px;
+    margin: 2px 0;
+  }
+
+  .waveform span {
+    width: 4px;
+    height: 14px;
+    border-radius: 3px;
+    background: #8d80d8;
+    animation: wave 1.1s ease-in-out infinite;
+  }
+
+  .waveform.idle span {
+    animation-play-state: paused;
+    opacity: .28;
+    transform: scaleY(.6);
+  }
+
+  @keyframes wave {
+    0%, 100% { transform: scaleY(.4); }
+    50% { transform: scaleY(2.6); }
+  }
+
+  .focus-card {
+    width: 100%;
+    padding: 18px 16px;
+    border-radius: 12px;
+    background: #fff;
+    text-align: center;
+    box-shadow: 0 8px 24px rgba(17, 24, 39, .05);
+  }
+
+  .focus-card h3 {
+    margin: 0 0 8px;
+    color: var(--ink);
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .focus-card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .class-tools {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .class-tool {
+    min-height: 52px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: 12px;
+    background: #fff;
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 6px 18px rgba(17, 24, 39, .05);
+  }
+
+  .class-tool svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .class-controls {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    justify-items: center;
+    gap: 12px;
+    margin-top: 2px;
+  }
+
+  .pause-button {
+    width: 88px;
+    height: 88px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--ink);
+    box-shadow: 0 10px 26px rgba(17, 24, 39, .14);
+  }
+
+  .record-end-button {
+    width: 88px;
+    height: 88px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #e4cbc8;
+    border-radius: 50%;
+    background: #fff;
+    color: #b42318;
+    box-shadow: 0 10px 26px rgba(180, 35, 24, .08);
+  }
+
+  .record-end-button:disabled {
+    border-color: var(--line);
+    color: #c9cecc;
+    box-shadow: none;
+    cursor: default;
+  }
+
+  .record-end-button .ico-stop {
+    width: 26px;
+    height: 26px;
+    border-radius: 5px;
+    background: currentColor;
+  }
+
+  .pause-button .ico-pause {
+    display: flex;
+    gap: 7px;
+  }
+
+  .pause-button .ico-pause i {
+    width: 7px;
+    height: 26px;
+    border-radius: 2px;
+    background: #fff;
+  }
+
+  .pause-button .ico-play {
+    display: none;
+    width: 0;
+    height: 0;
+    margin-left: 5px;
+    border-left: 22px solid #fff;
+    border-top: 13px solid transparent;
+    border-bottom: 13px solid transparent;
+  }
+
+  .pause-button.paused .ico-pause { display: none; }
+  .pause-button.paused .ico-play { display: block; }
+
+  .end-button {
+    width: 100%;
+    min-height: 46px;
+    border: 1px solid rgba(180, 35, 24, .22);
+    border-radius: 10px;
+    background: #fff;
+    color: #b42318;
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .record-list {
+    width: 100%;
+    display: grid;
+    gap: 8px;
+  }
+
+  .record-list:empty {
+    display: none;
+  }
+
+  .record-item {
+    min-height: 48px;
+    padding: 0 12px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--body);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .record-item span:last-child {
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .session-end-wrap {
+    width: 100%;
+    margin-top: auto;
+    padding-top: 2px;
+  }
+
+  .finish-card strong {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.35;
+  }
+
+  .finish-card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .finish-hero {
+    padding: 22px 0 12px;
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+    text-align: center;
+  }
+
+  .finish-ring {
+    width: 66px;
+    height: 66px;
+    border-radius: 50%;
+    background:
+      conic-gradient(var(--ink) 0 22%, #ece9ff 22% 100%);
+    animation: finishSpin 1.1s linear infinite;
+  }
+
+  #finishClassView.complete .finish-ring {
+    background: var(--ink);
+    animation: none;
+    position: relative;
+  }
+
+  #finishClassView.complete .finish-ring::after {
+    content: "";
+    position: absolute;
+    left: 22px;
+    top: 26px;
+    width: 20px;
+    height: 11px;
+    border-left: 4px solid #fff;
+    border-bottom: 4px solid #fff;
+    transform: rotate(-45deg);
+  }
+
+  @keyframes finishSpin {
+    to { transform: rotate(360deg); }
+  }
+
+  .finish-hero h2 {
+    margin: 0;
+    color: var(--ink);
+    font-size: 22px;
+    line-height: 1.25;
+    font-weight: 750;
+  }
+
+  .finish-hero p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .finish-list {
+    display: grid;
+    gap: 10px;
+  }
+
+  .finish-card {
+    min-height: 70px;
+    padding: 13px 14px;
+    display: grid;
+    grid-template-columns: 30px 1fr;
+    gap: 12px;
+    align-items: center;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+    transition: border-color .24s ease, background .24s ease, transform .24s ease;
+  }
+
+  .finish-card.active {
+    border-color: var(--ink);
+    background: #fbfbfa;
+    transform: translateY(-1px);
+  }
+
+  .finish-card.done {
+    border-color: var(--line-dark);
+  }
+
+  .finish-status {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border: 2px solid var(--line-dark);
+    border-radius: 50%;
+    color: transparent;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .finish-status::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--ink);
+    transform: scale(0);
+    transition: transform .36s ease;
+  }
+
+  .finish-status::after {
+    content: "";
+    position: relative;
+    width: 9px;
+    height: 5px;
+    border-left: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    opacity: 0;
+    transform: rotate(-45deg) translateY(-1px);
+    transition: opacity .18s ease .14s;
+  }
+
+  .finish-card.active .finish-status::before {
+    transform: scale(.45);
+  }
+
+  .finish-card.done .finish-status::before {
+    transform: scale(1);
+  }
+
+  .finish-card.done .finish-status::after {
+    opacity: 1;
+  }
+
+  .finish-return {
+    padding-top: 6px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(8px);
+    transition: opacity .24s ease, transform .24s ease;
+  }
+
+  .finish-return.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  @media (max-width: 430px) {
+    body {
+      padding: 0;
+      background: var(--page);
+    }
+
+    .phone {
+      width: 100vw;
+      height: 100vh;
+      min-height: 100vh;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    .screen {
+      border-radius: 0;
+    }
+  }
+</style>
+</head>
+<body>
+  <main class="phone" aria-label="Zlzl MVP 学习库首页">
+    <section class="screen">
+      <div class="statusbar">
+        <span>09:41</span>
+        <div class="phone-state" aria-hidden="true">
+          <div class="signal"><span></span><span></span><span></span></div>
+          <div class="battery"></div>
+        </div>
+      </div>
+
+      <div class="app" id="app">
+        <section class="view active" id="homeView" aria-label="学习库首页">
+          <header class="topbar">
+            <button class="icon-button" id="openSidebar" type="button" aria-label="打开侧边栏">
+              <span class="icon icon-menu" aria-hidden="true"><span></span></span>
+            </button>
+            <h1>学习库</h1>
+            <div class="top-actions">
+              <button class="icon-button" id="openSearch" type="button" aria-label="搜索学习库">
+                <span class="icon icon-search" aria-hidden="true"></span>
+              </button>
+              <button class="icon-button" id="openCreate" type="button" aria-label="新建">
+                <span class="icon icon-plus" aria-hidden="true"></span>
+              </button>
+            </div>
+          </header>
+
+          <div class="search-panel" id="searchPanel">
+            <label class="search-box">
+              <span class="icon icon-search" aria-hidden="true"></span>
+              <input id="searchInput" type="search" placeholder="搜索学习库" autocomplete="off" />
+              <button id="closeSearch" type="button" aria-label="关闭搜索">
+                <span class="icon icon-close" aria-hidden="true"></span>
+              </button>
+            </label>
+          </div>
+
+          <div class="create-popover" id="createPopover">
+            <button class="menu-option" id="createFolder" type="button">新建文件夹</button>
+            <button class="menu-option" id="createLibrary" type="button">新建学习库</button>
+          </div>
+
+          <div class="content">
+            <section class="folder-list" id="folderList" aria-label="文件夹与学习库列表"></section>
+          </div>
+
+          <nav class="bottom-nav" aria-label="一级导航">
+            <button class="tab active" type="button" data-primary-tab="home">学习库</button>
+            <button class="copilot-tab" type="button" aria-label="全局 AI Copilot">
+              <svg class="bird-mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                <path d="M7 17.8c5.2-.8 7.7-3.7 8.8-8.2 3.5 1.4 5.7 4.1 6.4 8.1 1.6-.3 2.8-1 3.8-2.1-.2 4.8-3.5 8.4-8.8 8.4h-2.8c-3.8 0-6.4-2-7.4-6.2Z" fill="currentColor"/>
+                <path d="M12.2 12.4c-1.2-1.2-2.6-1.8-4.2-1.9 1.4 2.4 2.9 4.2 5.2 5.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="18.9" cy="14.8" r="1.3" fill="#111827"/>
+              </svg>
+            </button>
+            <button class="tab" type="button" data-primary-tab="mine">我的</button>
+          </nav>
+        </section>
+
+        <section class="view" id="mineView" aria-label="我的">
+          <header class="topbar simple">
+            <span></span>
+            <h1>我的</h1>
+            <span></span>
+          </header>
+
+          <div class="content">
+            <section class="mine-hero" aria-label="个人学习概览">
+              <div class="mine-profile">
+                <div class="avatar" aria-hidden="true">知</div>
+                <div>
+                  <h2>Horton</h2>
+                  <p>本周保持 5 天学习记录，最近重点在马原复习和人工智能基础。</p>
+                </div>
+              </div>
+              <div class="mine-stats">
+                <article class="mine-stat">
+                  <strong>26</strong>
+                  <span>连续学习天数</span>
+                </article>
+                <article class="mine-stat">
+                  <strong>18.5h</strong>
+                  <span>本月学习时长</span>
+                </article>
+                <article class="mine-stat">
+                  <strong>73%</strong>
+                  <span>平均掌握度</span>
+                </article>
+              </div>
+            </section>
+
+            <section class="mine-section" aria-label="学习统计">
+              <div class="mine-section-head">
+                <h3>学习统计</h3>
+                <span>近 12 周</span>
+              </div>
+              <div class="heatmap" id="studyHeatmap" aria-label="近 12 周学习活跃度"></div>
+            </section>
+
+            <section class="mine-section" aria-label="学习账户">
+              <div class="mine-section-head">
+                <h3>学习账户</h3>
+                <span>当前</span>
+              </div>
+              <div class="mine-row">
+                <div>
+                  <strong>当前计划</strong>
+                  <span>2 个学习库正在推进，1 个课程库持续记录</span>
+                </div>
+                <em>›</em>
+              </div>
+              <div class="mine-row">
+                <div>
+                  <strong>错题与薄弱点</strong>
+                  <span>实践检验标准、上下文窗口边界需要回看</span>
+                </div>
+                <em>›</em>
+              </div>
+              <div class="mine-row">
+                <div>
+                  <strong>课程记录</strong>
+                  <span>已整理 3 次课，最近一次为现代性转向</span>
+                </div>
+                <em>›</em>
+              </div>
+            </section>
+
+            <section class="mine-section setting-list" aria-label="设置入口">
+              <div class="mine-row">
+                <div>
+                  <strong>账号与数据</strong>
+                  <span>同步、导出、隐私设置</span>
+                </div>
+                <em>›</em>
+              </div>
+              <div class="mine-row">
+                <div>
+                  <strong>学习偏好</strong>
+                  <span>提醒时间、检测难度、反馈风格</span>
+                </div>
+                <em>›</em>
+              </div>
+              <div class="mine-row">
+                <div>
+                  <strong>帮助与反馈</strong>
+                  <span>问题反馈和版本说明</span>
+                </div>
+                <em>›</em>
+              </div>
+            </section>
+          </div>
+
+          <nav class="bottom-nav" aria-label="一级导航">
+            <button class="tab" type="button" data-primary-tab="home">学习库</button>
+            <button class="copilot-tab" type="button" aria-label="全局 AI Copilot">
+              <svg class="bird-mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                <path d="M7 17.8c5.2-.8 7.7-3.7 8.8-8.2 3.5 1.4 5.7 4.1 6.4 8.1 1.6-.3 2.8-1 3.8-2.1-.2 4.8-3.5 8.4-8.8 8.4h-2.8c-3.8 0-6.4-2-7.4-6.2Z" fill="currentColor"/>
+                <path d="M12.2 12.4c-1.2-1.2-2.6-1.8-4.2-1.9 1.4 2.4 2.9 4.2 5.2 5.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="18.9" cy="14.8" r="1.3" fill="#111827"/>
+              </svg>
+            </button>
+            <button class="tab active" type="button" data-primary-tab="mine">我的</button>
+          </nav>
+        </section>
+
+        <section class="view" id="createLibraryView" aria-label="新建学习库">
+          <header class="topbar simple">
+            <button class="icon-button" id="backHome" type="button" aria-label="返回">
+              <span class="icon back-mark" aria-hidden="true"></span>
+            </button>
+            <h1>新建学习库</h1>
+            <button class="text-button" id="saveLibraryTop" type="button">完成</button>
+          </header>
+
+          <div class="content">
+            <div class="form">
+              <label class="field">
+                <span class="field-label">库名</span>
+                <input class="text-input" id="libraryName" type="text" autocomplete="off" />
+              </label>
+
+              <section class="field">
+                <span class="field-label">学习类型</span>
+                <div class="type-grid" id="typeGrid">
+                  <button class="choice active" type="button" data-type="course">课程伴学</button>
+                  <button class="choice" type="button" data-type="exam">复习备考</button>
+                  <button class="choice" type="button" data-type="self">自主学习</button>
+                </div>
+              </section>
+
+              <section class="field">
+                <span class="field-label">上传资料</span>
+                <div class="tag-grid" id="tagGrid"></div>
+                <div class="upload-methods" id="uploadGrid"></div>
+                <button class="skip-button" id="skipUpload" type="button">跳过上传</button>
+              </section>
+
+              <button class="primary-button" id="saveLibrary" type="button">创建学习库</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="libraryView" aria-label="学习库详情">
+          <header class="topbar simple">
+            <button class="icon-button" id="backLibrary" type="button" aria-label="返回">
+              <span class="icon back-mark" aria-hidden="true"></span>
+            </button>
+            <h1 id="libraryViewTitle">学习库</h1>
+            <button class="icon-button" id="libraryMore" type="button" aria-label="学习库操作">
+              <span class="more-button" style="color:var(--ink);">⋯</span>
+            </button>
+          </header>
+
+          <div class="content">
+            <section class="entry-list" id="libraryEntries" aria-label="学习库入口"></section>
+          </div>
+        </section>
+
+        <section class="view" id="masteryCheckView" aria-label="掌握检测">
+          <header class="topbar simple">
+            <button class="icon-button" id="backMasteryCheck" type="button" aria-label="返回">
+              <span class="icon back-mark" aria-hidden="true"></span>
+            </button>
+            <h1>掌握检测</h1>
+            <span></span>
+          </header>
+
+          <div class="content">
+            <section class="mastery-shell" aria-label="模块化掌握检测">
+              <div class="check-progress" aria-label="检测进度"><span id="checkProgress"></span></div>
+              <article class="check-card" id="checkCard"></article>
+              <div class="config-foot">
+                <button class="primary-button" id="submitCheck" type="button">提交</button>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="knowledgeView" aria-label="知识库">
+          <header class="topbar simple">
+            <button class="icon-button" id="backKnowledge" type="button" aria-label="返回">
+              <span class="icon back-mark" aria-hidden="true"></span>
+            </button>
+            <h1>知识库</h1>
+            <span></span>
+          </header>
+
+          <div class="content">
+            <section class="knowledge-grid" aria-label="知识库视图">
+              <button class="block-card knowledge-card" id="openRawMaterials" type="button">
+                <span class="bc-icon" aria-hidden="true">原</span>
+                <span class="bc-text">
+                  <span class="bc-title">原始资料</span>
+                  <span class="bc-sub">课堂记录、学习资料、考试资料等</span>
+                </span>
+              </button>
+              <button class="block-card knowledge-card" id="openNotesView" type="button">
+                <span class="bc-icon" aria-hidden="true">记</span>
+                <span class="bc-text">
+                  <span class="bc-title">笔记视图</span>
+                  <span class="bc-sub">知识图谱和章节视图</span>
+                </span>
+              </button>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="rawMaterialsView" aria-label="原始资料">
+          <header class="topbar simple materials-bar">
+            <button class="icon-button" id="backRawMaterials" type="button" aria-label="返回">
+              <span class="icon back-mark" aria-hidden="true"></span>
+            </button>
+            <h1>原始资料</h1>
+            <div class="material-actions">
+              <button class="tiny-button active" id="materialsListMode" type="button" aria-label="切换列表" data-tip="切换列表">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M9 6h11"/><path d="M9 12h11"/><path d="M9 18h11"/><circle cx="4" cy="6" r="1.4" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.4" fill="currentColor" stroke="none"/></svg>
+              </button>
+              <button class="tiny-button" id="materialsGridMode" type="button" aria-label="切换网格" data-tip="切换网格">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="4" y="4" width="6" height="6" rx="1.2"/><rect x="14" y="4" width="6" height="6" rx="1.2"/><rect x="4" y="14" width="6" height="6" rx="1.2"/><rect x="14" y="14" width="6" height="6" rx="1.2"/></svg>
+              </button>
+              <button class="tiny-button" id="uploadFromMaterials" type="button" aria-label="上传资料" data-tip="上传资料">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/><path d="M14 4v5h5"/><path d="M17 3v6"/><path d="M14 6h6"/><path d="M12 12v5"/><path d="M9.5 14.5 12 12l2.5 2.5"/></svg>
+              </button>
+            </div>
+          </header>
+
+          <div class="content">
+            <section id="materialsContent" aria-label="原始资料列表"></section>
+          </div>
+        </section>
+
+        <section class="view" id="notesView" aria-label="笔记视图">
+          <header class="topbar simple">
+            <button class="icon-button" id="backNotes" type="button" aria-label="返回">
+              <span class="icon back-mark" aria-hidden="true"></span>
+            </button>
+            <h1>笔记视图</h1>
+            <span></span>
+          </header>
+
+          <div class="content">
+            <section class="knowledge-grid" id="notesContent" aria-label="笔记视图入口"></section>
+          </div>
+        </section>
+
+        <section class="view" id="courseNotesView" aria-label="课程笔记">
+          <header class="topbar simple">
+            <button class="icon-button" id="backCourseNotes" type="button" aria-label="返回">
+              <span class="icon back-mark" aria-hidden="true"></span>
+            </button>
+            <h1>课程笔记</h1>
+            <span></span>
+          </header>
+
+          <div class="content">
+            <section class="note-list" id="courseNoteList" aria-label="每轮上课笔记"></section>
+          </div>
+        </section>
+
+        <section class="view" id="courseNoteDetailView" aria-label="课程笔记详情">
+          <header class="topbar simple">
+            <button class="icon-button" id="backCourseNoteDetail" type="button" aria-label="返回">
+              <span class="icon back-mark" aria-hidden="true"></span>
+            </button>
+            <h1 id="courseNoteDetailTitle">课程笔记</h1>
+            <span></span>
+          </header>
+
+          <div class="content">
+            <section class="mastery-shell" aria-label="课程笔记详情">
+              <div class="note-tabs" id="courseNoteTabs"></div>
+              <article class="note-body" id="courseNoteBody"></article>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="planView" aria-label="生成学习计划">
+          <header class="topbar simple">
+            <button class="icon-button" id="backPlan" type="button" aria-label="返回">
+              <span class="icon back-mark" aria-hidden="true"></span>
+            </button>
+            <h1>生成学习计划</h1>
+            <span></span>
+          </header>
+
+          <div class="content">
+            <section class="plan-form" aria-label="学习计划配置">
+              <article class="plan-card">
+                <h2>学习目标</h2>
+                <p id="planGoalHint">可以多选，系统会按这些目标生成总计划。</p>
+                <div class="option-grid" id="planGoalOptions"></div>
+                <input class="text-input" id="customGoalInput" type="text" placeholder="也可以自己写一个目标" autocomplete="off" />
+              </article>
+
+              <article class="plan-card">
+                <h2>学习范围</h2>
+                <p>先确定这次计划覆盖什么内容。</p>
+                <div class="option-grid" id="planScopeOptions">
+                  <button class="option-pill active" type="button" data-scope="all">全面学习</button>
+                  <button class="option-pill" type="button" data-scope="focus">只学重点</button>
+                  <button class="option-pill" type="button" data-scope="custom">自己指定</button>
+                </div>
+                <input class="text-input custom-scope" id="customScopeInput" type="text" placeholder="如只学某部分到某部分，重点是某部分" autocomplete="off" />
+              </article>
+
+              <article class="plan-card" id="planTypeCard"></article>
+
+              <div class="config-foot">
+                <button class="primary-button" id="generatePlan" type="button">生成学习计划</button>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="planResultView" aria-label="建议计划">
+          <header class="topbar simple">
+            <button class="icon-button" id="backPlanResult" type="button" aria-label="返回">
+              <span class="icon back-mark" aria-hidden="true"></span>
+            </button>
+            <h1>建议计划</h1>
+            <span></span>
+          </header>
+
+          <div class="content">
+            <section class="plan-form" aria-label="建议学习计划">
+              <article class="plan-card">
+                <h2>学习计划</h2>
+                <p>按固定学习量组织内容，后续每次学习再从这里拆出当次安排。</p>
+                <div class="plan-stage-list" id="planStageList"></div>
+              </article>
+
+              <article class="plan-card">
+                <h2>学习节奏</h2>
+                <p>总学习量大致固定，调整一项时另一项会自动平衡。</p>
+                <div class="metric-grid" id="planMetricGrid"></div>
+                <label class="range-row">
+                  <span class="range-head">每周学习次数 <output id="weeklyCountValue">3 次</output></span>
+                  <input class="range-input" id="weeklyCount" type="range" min="1" max="7" value="3" />
+                </label>
+                <label class="range-row">
+                  <span class="range-head">每次学习时间 <output id="sessionMinutesValue">45 分钟</output></span>
+                  <input class="range-input" id="sessionMinutes" type="range" min="15" max="120" step="5" value="45" />
+                </label>
+                <span class="range-note">每次学习时间按 5 分钟调整，允许少量误差。</span>
+              </article>
+
+              <div class="config-foot">
+                <button class="primary-button" id="finishPlan" type="button">完成</button>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="captureView" aria-label="上课中">
+          <header class="topbar class-bar">
+            <div class="cb-left">
+              <button class="icon-button" id="backCapture" type="button" aria-label="返回（后台继续录音）">
+                <span class="icon back-mark" aria-hidden="true"></span>
+              </button>
+              <span class="class-name" id="captureTitle">上课中</span>
+            </div>
+            <span class="rec-state" id="recState"><span class="rec-dot" aria-hidden="true"></span><span id="recStateText">录音中</span></span>
+          </header>
+
+          <div class="content capture">
+            <div class="class-timer" id="recordTimer">00:00:00</div>
+            <p class="class-sub">本次预计 60 分钟 · 录音已自动分段保存</p>
+            <div class="wave-wrap">
+              <div class="waveform" id="waveform" aria-hidden="true"></div>
+              <div class="mark-layer" id="markLayer" aria-hidden="true"></div>
+            </div>
+
+            <div class="focus-card">
+              <h3>专注听课就好</h3>
+              <p>转写、总结和知识整理都交给课后。<br />听到没懂的，点一下「疑问标记」。</p>
+            </div>
+
+            <div class="class-tools">
+              <button class="class-tool q" type="button" data-mark="q">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4"/><path d="M5 4h12l-2.5 4L17 12H5"/></svg>
+                疑问标记
+              </button>
+              <button class="class-tool k" type="button" data-mark="k">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l2.3 5 5.5.5-4.2 3.6 1.3 5.4L12 17l-4.9 1.5 1.3-5.4L4.2 9.5 9.7 9z"/></svg>
+                重点标记
+              </button>
+              <button class="class-tool" id="openPhotoPage" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h3l1.5-2h9L18 8h3v11H3z"/><circle cx="12" cy="13" r="3.2"/></svg>
+                拍照
+              </button>
+              <button class="class-tool" id="openImagePage" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.4"/><path d="M21 16l-5-4-4 3"/></svg>
+                传图片
+              </button>
+            </div>
+
+            <div class="class-controls">
+              <button class="pause-button" id="pauseButton" type="button" aria-label="暂停或继续录音">
+                <span class="ico-pause" aria-hidden="true"><i></i><i></i></span>
+                <span class="ico-play" aria-hidden="true"></span>
+              </button>
+              <button class="record-end-button" id="endRecording" type="button" disabled aria-label="结束录音">
+                <span class="ico-stop" aria-hidden="true"></span>
+              </button>
+            </div>
+
+            <div class="record-list" id="recordList" aria-label="录音记录"></div>
+            <input id="cameraInput" type="file" accept="image/*" capture="environment" hidden />
+            <input id="imageInput" type="file" accept="image/*" hidden />
+
+            <div class="session-end-wrap">
+              <button class="end-button" id="endClass" type="button">整理本次课</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="finishClassView" aria-label="结束本次课">
+          <header class="topbar simple">
+            <button class="icon-button" id="backFinishClass" type="button" aria-label="返回">
+              <span class="icon back-mark" aria-hidden="true"></span>
+            </button>
+            <h1>整理本次课</h1>
+            <span></span>
+          </header>
+
+          <div class="content">
+            <section class="finish-hero">
+              <div class="finish-ring" aria-hidden="true"></div>
+              <h2>正在整理这节课...</h2>
+              <p>小知会把课堂内容接进学习库</p>
+            </section>
+            <section class="finish-list" aria-label="课后整理进度">
+              <article class="finish-card" data-finish-step="0">
+                <span class="finish-status" aria-hidden="true"></span>
+                <div>
+                  <strong>转写录音</strong>
+                  <p>把本次录音整理成课堂文本。</p>
+                </div>
+              </article>
+              <article class="finish-card" data-finish-step="1">
+                <span class="finish-status" aria-hidden="true"></span>
+                <div>
+                  <strong>并入学习库</strong>
+                  <p>把录音和图片放入当前课程库。</p>
+                </div>
+              </article>
+              <article class="finish-card" data-finish-step="2">
+                <span class="finish-status" aria-hidden="true"></span>
+                <div>
+                  <strong>生成课堂总结</strong>
+                  <p>形成这节课的重点、疑问和复习材料。</p>
+                </div>
+              </article>
+            </section>
+            <div class="config-foot finish-return" id="finishReturnWrap">
+              <button class="primary-button" id="returnLibraryAfterClass" type="button">回到学习库</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="libraryUploadView" aria-label="上传资料">
+          <header class="topbar simple">
+            <button class="icon-button" id="backLibUpload" type="button" aria-label="返回">
+              <span class="icon back-mark" aria-hidden="true"></span>
+            </button>
+            <h1>上传资料</h1>
+            <span></span>
+          </header>
+
+          <div class="content">
+            <div class="form">
+              <section class="field" id="libTagField">
+                <span class="field-label">资料来源</span>
+                <div class="tag-grid" id="libTagGrid"></div>
+              </section>
+              <div class="upload-methods" id="libUploadGrid"></div>
+            </div>
+          </div>
+        </section>
+
+        <button class="scrim" id="closeScrim" type="button" aria-label="关闭侧边栏"></button>
+
+        <aside class="sidebar" aria-label="侧边栏">
+          <div class="sidebar-head">
+            <strong>知了知了</strong>
+            <button class="icon-button" id="closeSidebar" type="button" aria-label="关闭侧边栏">
+              <span class="icon icon-close" aria-hidden="true"></span>
+            </button>
+          </div>
+
+          <div class="sidebar-list" aria-label="全局入口">
+            <section>
+              <p class="sidebar-title">消息</p>
+              <div class="sidebar-item">消息中心</div>
+            </section>
+
+            <section>
+              <p class="sidebar-title">工具箱</p>
+              <div class="sidebar-item">AI写作</div>
+              <div class="sidebar-item">拍照翻译</div>
+              <div class="sidebar-item">拍照答疑</div>
+              <div class="sidebar-item">作业批改</div>
+              <div class="sidebar-item">口语练习</div>
+            </section>
+
+            <section>
+              <p class="sidebar-title">设置</p>
+              <div class="sidebar-item">设置</div>
+            </section>
+          </div>
+        </aside>
+
+        <div class="modal" id="folderModal" aria-label="新建文件夹">
+          <div class="dialog">
+            <h2>新建文件夹</h2>
+            <label class="field">
+              <span class="field-label">名称</span>
+              <input class="text-input" id="folderName" type="text" autocomplete="off" />
+            </label>
+            <div class="swatches">
+              <span class="field-label">颜色</span>
+              <div class="swatch-grid" id="swatchGrid"></div>
+            </div>
+            <div class="dialog-actions">
+              <button class="dialog-button" id="cancelFolder" type="button">取消</button>
+              <button class="dialog-button primary" id="saveFolder" type="button">完成</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-menu" id="actionMenu">
+          <button class="menu-option hidden" id="adjustPlanAction" type="button">调整计划</button>
+          <button class="menu-option" id="deleteAction" type="button">删除</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const app = document.getElementById("app");
+    const homeView = document.getElementById("homeView");
+    const mineView = document.getElementById("mineView");
+    const createLibraryView = document.getElementById("createLibraryView");
+    const folderList = document.getElementById("folderList");
+    const openSidebar = document.getElementById("openSidebar");
+    const closeSidebar = document.getElementById("closeSidebar");
+    const closeScrim = document.getElementById("closeScrim");
+    const openCreate = document.getElementById("openCreate");
+    const createPopover = document.getElementById("createPopover");
+    const createFolder = document.getElementById("createFolder");
+    const createLibrary = document.getElementById("createLibrary");
+    const folderModal = document.getElementById("folderModal");
+    const folderName = document.getElementById("folderName");
+    const cancelFolder = document.getElementById("cancelFolder");
+    const saveFolder = document.getElementById("saveFolder");
+    const swatchGrid = document.getElementById("swatchGrid");
+    const openSearch = document.getElementById("openSearch");
+    const closeSearch = document.getElementById("closeSearch");
+    const searchInput = document.getElementById("searchInput");
+    const actionMenu = document.getElementById("actionMenu");
+    const adjustPlanAction = document.getElementById("adjustPlanAction");
+    const deleteAction = document.getElementById("deleteAction");
+    const backHome = document.getElementById("backHome");
+    const libraryName = document.getElementById("libraryName");
+    const typeGrid = document.getElementById("typeGrid");
+    const tagGrid = document.getElementById("tagGrid");
+    const uploadGrid = document.getElementById("uploadGrid");
+    const skipUpload = document.getElementById("skipUpload");
+    const saveLibrary = document.getElementById("saveLibrary");
+    const saveLibraryTop = document.getElementById("saveLibraryTop");
+    const libraryView = document.getElementById("libraryView");
+    const knowledgeView = document.getElementById("knowledgeView");
+    const masteryCheckView = document.getElementById("masteryCheckView");
+    const rawMaterialsView = document.getElementById("rawMaterialsView");
+    const notesView = document.getElementById("notesView");
+    const courseNotesView = document.getElementById("courseNotesView");
+    const courseNoteDetailView = document.getElementById("courseNoteDetailView");
+    const planView = document.getElementById("planView");
+    const planResultView = document.getElementById("planResultView");
+    const captureView = document.getElementById("captureView");
+    const finishClassView = document.getElementById("finishClassView");
+    const libraryUploadView = document.getElementById("libraryUploadView");
+    const libraryViewTitle = document.getElementById("libraryViewTitle");
+    const libraryEntries = document.getElementById("libraryEntries");
+    const backLibrary = document.getElementById("backLibrary");
+    const backMasteryCheck = document.getElementById("backMasteryCheck");
+    const checkProgress = document.getElementById("checkProgress");
+    const checkCard = document.getElementById("checkCard");
+    const submitCheck = document.getElementById("submitCheck");
+    const libraryMore = document.getElementById("libraryMore");
+    const backKnowledge = document.getElementById("backKnowledge");
+    const backRawMaterials = document.getElementById("backRawMaterials");
+    const backNotes = document.getElementById("backNotes");
+    const backCourseNotes = document.getElementById("backCourseNotes");
+    const backCourseNoteDetail = document.getElementById("backCourseNoteDetail");
+    const courseNoteList = document.getElementById("courseNoteList");
+    const courseNoteTabs = document.getElementById("courseNoteTabs");
+    const courseNoteBody = document.getElementById("courseNoteBody");
+    const courseNoteDetailTitle = document.getElementById("courseNoteDetailTitle");
+    const notesContent = document.getElementById("notesContent");
+    const backPlan = document.getElementById("backPlan");
+    const backPlanResult = document.getElementById("backPlanResult");
+    const finishPlan = document.getElementById("finishPlan");
+    const generatePlan = document.getElementById("generatePlan");
+    const planGoalOptions = document.getElementById("planGoalOptions");
+    const customGoalInput = document.getElementById("customGoalInput");
+    const planScopeOptions = document.getElementById("planScopeOptions");
+    const customScopeInput = document.getElementById("customScopeInput");
+    const planTypeCard = document.getElementById("planTypeCard");
+    const weeklyCount = document.getElementById("weeklyCount");
+    const sessionMinutes = document.getElementById("sessionMinutes");
+    const weeklyCountValue = document.getElementById("weeklyCountValue");
+    const sessionMinutesValue = document.getElementById("sessionMinutesValue");
+    const planStageList = document.getElementById("planStageList");
+    const planMetricGrid = document.getElementById("planMetricGrid");
+    const openRawMaterials = document.getElementById("openRawMaterials");
+    const openNotesView = document.getElementById("openNotesView");
+    const materialsContent = document.getElementById("materialsContent");
+    const materialsListMode = document.getElementById("materialsListMode");
+    const materialsGridMode = document.getElementById("materialsGridMode");
+    const uploadFromMaterials = document.getElementById("uploadFromMaterials");
+    const backLibUpload = document.getElementById("backLibUpload");
+    const recordTimer = document.getElementById("recordTimer");
+    const captureTitle = document.getElementById("captureTitle");
+    const waveform = document.getElementById("waveform");
+    const markLayer = document.getElementById("markLayer");
+    const recState = document.getElementById("recState");
+    const recStateText = document.getElementById("recStateText");
+    const pauseButton = document.getElementById("pauseButton");
+    const backCapture = document.getElementById("backCapture");
+    const endClass = document.getElementById("endClass");
+    const endRecording = document.getElementById("endRecording");
+    const recordList = document.getElementById("recordList");
+    const openPhotoPage = document.getElementById("openPhotoPage");
+    const openImagePage = document.getElementById("openImagePage");
+    const backFinishClass = document.getElementById("backFinishClass");
+    const finishReturnWrap = document.getElementById("finishReturnWrap");
+    const returnLibraryAfterClass = document.getElementById("returnLibraryAfterClass");
+    const cameraInput = document.getElementById("cameraInput");
+    const imageInput = document.getElementById("imageInput");
+    const libTagField = document.getElementById("libTagField");
+    const libTagGrid = document.getElementById("libTagGrid");
+    const libUploadGrid = document.getElementById("libUploadGrid");
+    const studyHeatmap = document.getElementById("studyHeatmap");
+
+    const colors = ["", "#f2f2f0", "#edf2ef", "#f1eee8", "#edf0f4", "#f2eeee"];
+    const typeTags = {
+      course: ["课堂记录", "学习资料", "考试资料"],
+      exam: ["课堂记录", "学习资料", "考试资料"],
+      self: []
+    };
+
+    let selectedColor = "";
+    let selectedType = "course";
+    let selectedTag = "";
+    let skippedUpload = false;
+    let dragState = null;
+    let actionTarget = null;
+    let currentLibrary = null;
+    let libUploadTag = "";
+    let recordSeconds = 0;
+    let recordTimerId = null;
+    let paused = false;
+    let recordingActive = false;
+    let recordingIndex = 0;
+    let materialLayout = "list";
+    let planReturnView = "library";
+    let planDraft = null;
+    let planResultState = null;
+    let masteryIndex = 0;
+    let selectedCheckAnswer = "";
+    let checkSubmitted = false;
+    let masteryComplete = false;
+    let finishClassTimers = [];
+    let currentCourseNoteId = "";
+    let currentCourseNoteTab = "transcript";
+
+    const folders = [
+      {
+        id: "uncategorized",
+        name: "未分类",
+        color: "",
+        collapsed: false,
+        libraries: [{ id: "lib-default", name: "初始学习库", type: "self", openable: false }]
+      },
+      {
+        id: "in-class",
+        name: "学习中-测试",
+        color: "#edf2ef",
+        collapsed: false,
+        libraries: [
+          { id: "learning-marx", name: "马原——复习备考", type: "exam", state: "learning" },
+          { id: "learning-art-history", name: "中外艺术史——课程伴学", type: "course", state: "learning" },
+          { id: "learning-ai-basic", name: "人工智能基础——自主学习", type: "self", state: "learning" }
+        ]
+      },
+      {
+        id: "empty-test",
+        name: "空库-测试",
+        color: "",
+        collapsed: false,
+        libraries: [
+          { id: "test-course", name: "课程伴学空库", type: "course" },
+          { id: "test-exam", name: "复习备考空库", type: "exam" },
+          { id: "test-self", name: "自主学习空库", type: "self" }
+        ]
+      }
+    ];
+
+    const views = {
+      home: homeView,
+      mine: mineView,
+      createLibrary: createLibraryView,
+      library: libraryView,
+      masteryCheck: masteryCheckView,
+      knowledge: knowledgeView,
+      rawMaterials: rawMaterialsView,
+      notes: notesView,
+      courseNotes: courseNotesView,
+      courseNoteDetail: courseNoteDetailView,
+      plan: planView,
+      planResult: planResultView,
+      capture: captureView,
+      finishClass: finishClassView,
+      libraryUpload: libraryUploadView
+    };
+
+    function showView(name) {
+      Object.entries(views).forEach(([key, node]) => {
+        node.classList.toggle("active", key === name);
+      });
+      updatePrimaryTabs(name);
+      setCreateMenu(false);
+      setActionMenu(false);
+      setSearch(false);
+    }
+
+    function updatePrimaryTabs(name) {
+      document.querySelectorAll("[data-primary-tab]").forEach(tab => {
+        tab.classList.toggle("active", tab.dataset.primaryTab === name);
+      });
+    }
+
+    function setSidebar(open) {
+      app.classList.toggle("sidebar-open", open);
+      openSidebar.setAttribute("aria-expanded", String(open));
+    }
+
+    function setCreateMenu(open) {
+      createPopover.classList.toggle("open", open);
+      openCreate.setAttribute("aria-expanded", String(open));
+    }
+
+    function setActionMenu(open, target = null, anchor = null) {
+      actionTarget = target;
+      actionMenu.classList.toggle("open", open);
+      if (open && anchor) {
+        const appRect = app.getBoundingClientRect();
+        const rect = anchor.getBoundingClientRect();
+        const menuWidth = actionMenu.offsetWidth || 112;
+        const left = rect.left - appRect.left;
+        const safeLeft = Math.min(Math.max(10, left), Math.max(10, appRect.width - menuWidth - 10));
+        actionMenu.style.left = `${safeLeft}px`;
+        actionMenu.style.top = `${Math.min(rect.bottom - appRect.top + 4, appRect.height - 58)}px`;
+        const canDelete = target && target.type === "folder" && folderById(target.id)?.libraries.length === 0;
+        const canAdjustPlan = target && target.type === "current-library" && currentLibrary?.state === "learning" && currentLibrary?.type !== "course";
+        adjustPlanAction.classList.toggle("hidden", !canAdjustPlan);
+        deleteAction.classList.toggle("hidden", target?.type === "current-library");
+        deleteAction.classList.toggle("disabled", !canDelete);
+      }
+    }
+
+    function setSearch(open) {
+      app.classList.toggle("searching", open);
+      if (open) {
+        setCreateMenu(false);
+        requestAnimationFrame(() => searchInput.focus());
+      } else {
+        searchInput.value = "";
+        renderFolders();
+      }
+    }
+
+    function renderStudyHeatmap() {
+      const levels = [
+        0,0,0,0,0,0,0, 0,1,0,0,0,0,0, 0,0,0,1,0,0,0,
+        1,0,2,0,0,0,0, 0,0,0,0,1,0,0, 0,1,2,0,0,0,0,
+        0,0,0,2,1,0,0, 1,0,0,0,0,2,0, 0,0,1,0,0,0,0,
+        2,3,1,0,2,0,0, 0,2,3,1,0,2,1, 3,2,4,2,0,3,2
+      ];
+      studyHeatmap.innerHTML = levels.map(level => `<span class="heat-cell lv${level}" aria-hidden="true"></span>`).join("");
+    }
+
+    function openFolderModal() {
+      selectedColor = "";
+      folderName.value = "";
+      renderSwatches();
+      folderModal.classList.add("open");
+      requestAnimationFrame(() => folderName.focus());
+    }
+
+    function closeFolderModal() {
+      folderModal.classList.remove("open");
+    }
+
+    function openLibraryCreate() {
+      libraryName.value = "";
+      selectedType = "course";
+      selectedTag = "";
+      skippedUpload = false;
+      renderTypeChoices();
+      renderUploadSection();
+      showView("createLibrary");
+      requestAnimationFrame(() => libraryName.focus());
+    }
+
+    function renderSwatches() {
+      swatchGrid.innerHTML = colors.map(color => `
+        <button
+          class="swatch ${color === selectedColor ? "active" : ""}"
+          style="--swatch: ${color || "#fff"}"
+          data-color="${color}"
+          type="button"
+          aria-label="${color ? "选择颜色" : "无色"}"
+        ></button>
+      `).join("");
+      swatchGrid.querySelectorAll(".swatch").forEach(button => {
+        button.addEventListener("click", () => {
+          selectedColor = button.dataset.color;
+          renderSwatches();
+        });
+      });
+    }
+
+    function renderTypeChoices() {
+      typeGrid.querySelectorAll(".choice").forEach(button => {
+        button.classList.toggle("active", button.dataset.type === selectedType);
+      });
+    }
+
+    function renderUploadPanels() {
+      return `
+        <section class="upload-panel">
+          <h3>本地文件</h3>
+          <button class="local-drop" type="button" aria-label="添加本地文件">+</button>
+          <p class="upload-note">支持图片 jpg、jpeg、png、webp；音频 mp3、wav、m4a、aac；文档 pdf、doc、docx、ppt、pptx、txt、md。</p>
+        </section>
+        <section class="upload-panel">
+          <h3>网络链接</h3>
+          <textarea class="link-area" placeholder="粘贴或输入链接，多条链接间需换行"></textarea>
+          <div class="upload-foot">
+            <p class="upload-note">支持微信公众号文章、公开网页、腾讯文档、飞书文档、石墨文档、公开视频课程链接等。</p>
+            <button class="import-button" type="button">导入</button>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderUploadSection() {
+      const tags = typeTags[selectedType];
+      if (selectedTag && !tags.includes(selectedTag)) selectedTag = "";
+      if (selectedType === "self") {
+        selectedTag = "";
+        tagGrid.innerHTML = "";
+        tagGrid.style.display = "none";
+        uploadGrid.innerHTML = skippedUpload ? "" : renderUploadPanels();
+        skipUpload.classList.toggle("active", skippedUpload);
+        return;
+      }
+
+      tagGrid.style.display = "grid";
+      tagGrid.innerHTML = tags.map(tag => `
+        <button class="choice ${tag === selectedTag ? "active" : ""}" type="button" data-tag="${tag}">${tag}</button>
+      `).join("");
+      uploadGrid.innerHTML = selectedTag ? renderUploadPanels() : "";
+      skipUpload.classList.toggle("active", skippedUpload);
+
+      tagGrid.querySelectorAll("[data-tag]").forEach(button => {
+        button.addEventListener("click", () => {
+          selectedTag = button.dataset.tag;
+          skippedUpload = false;
+          renderUploadSection();
+        });
+      });
+    }
+
+    function folderById(id) {
+      return folders.find(folder => folder.id === id);
+    }
+
+    function folderIndex(id) {
+      return folders.findIndex(folder => folder.id === id);
+    }
+
+    function libraryPosition(id) {
+      for (const folder of folders) {
+        const index = folder.libraries.findIndex(library => library.id === id);
+        if (index >= 0) return { folder, index };
+      }
+      return null;
+    }
+
+    function moveFolderBefore(sourceId, targetId) {
+      if (sourceId === targetId) return;
+      const from = folderIndex(sourceId);
+      let to = targetId ? folderIndex(targetId) : folders.length;
+      if (from < 0 || to < 0) return;
+      const [folder] = folders.splice(from, 1);
+      if (from < to) to -= 1;
+      folders.splice(to, 0, folder);
+      renderFolders();
+    }
+
+    function moveLibraryRelative(sourceId, targetFolderId, targetLibraryId, placement) {
+      const source = libraryPosition(sourceId);
+      const targetFolder = folderById(targetFolderId);
+      if (!source || !targetFolder || sourceId === targetLibraryId) return;
+      const [library] = source.folder.libraries.splice(source.index, 1);
+      let targetIndex = targetFolder.libraries.findIndex(item => item.id === targetLibraryId);
+      if (targetIndex < 0) targetIndex = targetFolder.libraries.length;
+      const insertIndex = placement === "after" ? targetIndex + 1 : targetIndex;
+      targetFolder.libraries.splice(insertIndex, 0, library);
+      targetFolder.collapsed = false;
+      renderFolders();
+    }
+
+    function moveLibraryToFolder(sourceId, targetFolderId) {
+      const source = libraryPosition(sourceId);
+      const targetFolder = folderById(targetFolderId);
+      if (!source || !targetFolder) return;
+      const [library] = source.folder.libraries.splice(source.index, 1);
+      targetFolder.libraries.push(library);
+      targetFolder.collapsed = false;
+      renderFolders();
+    }
+
+    function clearDragMarkers() {
+      folderList.querySelectorAll(".drag-over, .insert-before, .insert-after").forEach(node => {
+        node.classList.remove("drag-over", "insert-before", "insert-after");
+      });
+    }
+
+    function placementFromEvent(node, event) {
+      const rect = node.getBoundingClientRect();
+      return event.clientY < rect.top + rect.height / 2 ? "before" : "after";
+    }
+
+    function folderTargetAfter(targetFolderId, placement) {
+      if (placement === "before") return targetFolderId;
+      const index = folderIndex(targetFolderId);
+      return folders[index + 1]?.id || "";
+    }
+
+    function deleteEmptyFolder(id) {
+      const index = folderIndex(id);
+      if (index < 0 || folders[index].libraries.length) return;
+      folders.splice(index, 1);
+      renderFolders();
+    }
+
+    function createLibraryInUncategorized() {
+      const name = libraryName.value.trim();
+      if (!name) {
+        libraryName.focus();
+        return;
+      }
+      const uncategorized = folderById("uncategorized") || folders[0];
+      const library = { id: `lib-${Date.now()}`, name, type: selectedType };
+      uncategorized.libraries.push(library);
+      uncategorized.collapsed = false;
+      renderFolders();
+      openLibrary(library.id);
+    }
+
+    function openLibrary(id) {
+      const position = libraryPosition(id);
+      if (!position) return;
+      const library = position.folder.libraries[position.index];
+      if (library.openable === false) return;
+      currentLibrary = library;
+      renderLibraryView();
+      showView("library");
+    }
+
+    const uploadIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V5"/><path d="M8 9l4-4 4 4"/><path d="M5 19h14"/></svg>`;
+    const playIcon = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
+    const knowledgeIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21z"/><path d="M4 5.5v15"/><path d="M8 7h8"/><path d="M8 11h6"/></svg>`;
+    const planIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10"/><path d="M7 20h10"/><path d="M8 4v5l4 3 4-3V4"/><path d="M8 20v-5l4-3 4 3v5"/></svg>`;
+
+    function renderLibraryView() {
+      if (!currentLibrary) return;
+      libraryViewTitle.textContent = currentLibrary.name;
+      const type = currentLibrary.type || "self";
+
+      const startBar = `
+        <button class="start-class-bar" type="button" data-entry="capture">
+          <span class="sc-badge" aria-hidden="true"></span>
+          <span class="sc-text">
+            <span class="sc-title">开始上课</span>
+          </span>
+          <span class="sc-arrow" aria-hidden="true">›</span>
+        </button>
+      `;
+
+      if (currentLibrary.state === "learning") {
+        renderLearningLibraryView(type, startBar);
+        return;
+      }
+
+      const uploadSub = type === "exam"
+        ? "课堂记录、学习资料、考试资料"
+        : type === "course"
+          ? "课堂记录、学习资料、考试资料"
+          : "本地文件或网络链接";
+
+      const uploadBlock = `
+        <button class="block-card" type="button" data-entry="upload">
+          <span class="bc-icon">${uploadIcon}</span>
+          <span class="bc-text">
+            <span class="bc-title">上传资料</span>
+            <span class="bc-sub">${uploadSub}</span>
+          </span>
+        </button>
+      `;
+
+      const planBlock = type === "course" ? `
+        <button class="block-card locked-card" type="button" aria-disabled="true" title="课程伴学学习计划暂不开放">
+          <span class="bc-icon">${planIcon}</span>
+          <span class="bc-text">
+            <span class="bc-title">学习计划</span>
+            <span class="bc-sub">课程伴学会根据每次上课后的课堂记录生成复盘安排</span>
+          </span>
+        </button>
+      ` : `
+        <button class="block-card" type="button" data-entry="plan">
+          <span class="bc-icon">${planIcon}</span>
+          <span class="bc-text">
+            <span class="bc-title">学习计划</span>
+            <span class="bc-sub">资料已整理，生成一份可调整的总计划</span>
+          </span>
+        </button>
+      `;
+
+      libraryEntries.innerHTML = `
+        <div class="library-stage">
+          ${type === "course" ? startBar : ""}
+          <div class="empty-blocks">
+            ${uploadBlock}
+            ${planBlock}
+          </div>
+        </div>
+      `;
+
+      libraryEntries.querySelectorAll("[data-entry]").forEach(button => {
+        button.addEventListener("click", () => {
+          if (button.dataset.entry === "capture") openCapture();
+          if (button.dataset.entry === "upload") openLibraryUpload();
+          if (button.dataset.entry === "plan") openPlanView("library");
+        });
+      });
+    }
+
+    function renderLearningLibraryView(type, startBar) {
+      if (type !== "course") {
+        renderSessionArrangement(type);
+        return;
+      }
+
+      libraryEntries.innerHTML = `
+        <div class="learn-stage">
+          ${startBar}
+          <article class="session-placeholder" aria-disabled="true">
+            <strong>本次学习任务</strong>
+            <span>课程伴学的课后学习任务形式先占位，后续会结合每轮上课记录单独设计。</span>
+          </article>
+          <button class="block-card knowledge-card" type="button" data-entry="knowledge">
+            <span class="bc-icon">${knowledgeIcon}</span>
+            <span class="bc-text">
+              <span class="bc-title">知识库</span>
+              <span class="bc-sub">原始资料和笔记视图</span>
+            </span>
+          </button>
+        </div>
+      `;
+
+      libraryEntries.querySelectorAll("[data-entry]").forEach(button => {
+        button.addEventListener("click", () => {
+          if (button.dataset.entry === "capture") openCapture();
+          if (button.dataset.entry === "knowledge") openKnowledgeBase();
+        });
+      });
+    }
+
+    function learningOverview(type) {
+      if (type === "exam") {
+        return {
+          last: "实践是认识基础",
+          detail: "上次检测中，检验标准和认识来源仍容易混用",
+          percent: 38
+        };
+      }
+      if (type === "course") {
+        return {
+          last: "第 3 次课：现代性转向",
+          detail: "最近一次课堂记录已整理",
+          percent: 24
+        };
+      }
+      return {
+        last: "机器学习入门：分类与回归",
+        detail: "上次能区分任务类型，但对模型输入边界不够清楚",
+        percent: 32
+      };
+    }
+
+    function renderLearningProgress(overview) {
+      return `
+        <article class="library-progress-card">
+          <div class="progress-copy">
+            <span>上次学到<strong>${overview.last}</strong></span>
+            <span class="progress-percent">${overview.percent}%</span>
+          </div>
+          <div class="library-progress-line" aria-label="总进度 ${overview.percent}%">
+            <span style="width:${overview.percent}%"></span>
+          </div>
+          <span class="session-kicker">${overview.detail}</span>
+        </article>
+      `;
+    }
+
+    function renderKnowledgeEntry() {
+      return `
+        <button class="block-card knowledge-card" type="button" data-entry="knowledge">
+          <span class="bc-icon">${knowledgeIcon}</span>
+          <span class="bc-text">
+            <span class="bc-title">知识库</span>
+            <span class="bc-sub">原始资料和笔记视图</span>
+          </span>
+        </button>
+      `;
+    }
+
+    function sessionPlanItems(type) {
+      if (type === "exam") {
+        return {
+          title: "认识论：实践、认识与真理标准",
+          note: "本轮目标是把“实践和认识的关系”从背诵句变成可解释的逻辑。",
+          items: [
+            {
+              title: "重读讲义中“实践是认识基础”这一节",
+              detail: "把“来源、动力、目的、检验标准”四个说法分别在资料里标出来，不要求背完整句，先弄清每句话解决的问题。",
+              minutes: 18
+            },
+            {
+              title: "对照课堂例子补一条自己的例子",
+              detail: "用生活或学习里的例子说明：一个判断为什么必须经过实际结果检验，不能只停在主观感觉里。",
+              minutes: 8
+            },
+            {
+              title: "整理“感性认识 -> 理性认识 -> 实践检验”的顺序",
+              detail: "在纸上画一条简单链路，标出每一步输入是什么、输出是什么，以及下一步为什么需要继续推进。",
+              minutes: 12
+            },
+            {
+              title: "回看上次混淆点",
+              detail: "上次容易把“实践产生认识”和“实践检验认识”混在一起，这次只检查两者的区别，不做整章复习。",
+              minutes: 6
+            },
+            {
+              title: "准备一个 30 秒口头解释",
+              detail: "不用写长答案，只准备一句核心判断和一个例子，检测时会围绕这个点问你。",
+              minutes: 4
+            }
+          ]
+        };
+      }
+
+      if (type === "course") {
+        return {
+          title: "课堂记录里的核心概念",
+          note: "先按课堂内容做一次向后看的学习安排。",
+          items: [
+            {
+              title: "看本次课堂总结",
+              detail: "重点关注老师反复提到的两个概念，以及板书中出现的例子。",
+              minutes: 15
+            },
+            {
+              title: "回看课堂记录中的疑问标记",
+              detail: "确认当时没有听懂的地方，现在能不能用一句话解释。",
+              minutes: 8
+            },
+            {
+              title: "整理一条自己的理解",
+              detail: "不要摘抄原文，用自己的话写出本节课最重要的一条结论。",
+              minutes: 7
+            }
+          ]
+        };
+      }
+
+      return {
+        title: "Transformer：注意力机制和上下文窗口",
+        note: "本轮不要求完整掌握大模型，只先弄清 Transformer 为什么能处理上下文，以及上下文窗口到底限制什么。",
+        items: [
+          {
+            title: "先看资料里的 Transformer 总览图",
+            detail: "只关注输入 token、注意力层、输出结果三段关系，不深入公式；看完后能说出信息是如何一层层被处理的。",
+            minutes: 12
+          },
+          {
+            title: "精读“自注意力”说明段落",
+            detail: "重点理解每个 token 为什么要和其他 token 建立关系；如果看到 Q/K/V 公式，先把它当作相关性计算，不纠结推导。",
+            minutes: 15
+          },
+          {
+            title: "用一个长句子例子理解上下文窗口",
+            detail: "找一段较长文本，想象它被切成 token 后放进窗口；窗口外内容为什么不能被模型直接参考，要自己说清楚。",
+            minutes: 8
+          },
+          {
+            title: "对比三个容易混的词",
+            detail: "分别写一句话解释 token、上下文窗口、长上下文能力。重点是边界，不追求专业表述。",
+            minutes: 7
+          },
+          {
+            title: "收尾检查",
+            detail: "合上资料后，用两句话回答：Transformer 处理上下文靠什么？上下文窗口限制的是什么？",
+            minutes: 5
+          }
+        ]
+      };
+    }
+
+    function renderSessionArrangement(type) {
+      const session = sessionPlanItems(type);
+      const overview = learningOverview(type);
+      libraryEntries.innerHTML = `
+        <div class="session-arrangement">
+          ${renderLearningProgress(overview)}
+          <article class="session-head">
+            <span class="session-kicker">本次学习任务</span>
+            <h2>${session.title}</h2>
+            <p>${session.note}</p>
+          </article>
+          <div class="session-task-list">
+            ${session.items.map((item, index) => `
+              <article class="session-task">
+                <span class="task-index">${index + 1}</span>
+                <span class="task-body">
+                  <strong>${item.title}</strong>
+                  <span>${item.detail}</span>
+                </span>
+                <span class="task-time">${item.minutes}分钟</span>
+              </article>
+            `).join("")}
+          </div>
+          <div class="config-foot">
+            <button class="primary-button" id="finishSession" type="button">我学完了，试试测试！</button>
+          </div>
+          ${renderKnowledgeEntry()}
+        </div>
+      `;
+      document.getElementById("finishSession").addEventListener("click", openMasteryCheck);
+      libraryEntries.querySelector("[data-entry='knowledge']").addEventListener("click", openKnowledgeBase);
+    }
+
+    function masteryCheckItems(type) {
+      if (type === "exam") {
+        return [
+          {
+            kind: "choice",
+            module: "选择题",
+            title: "为什么说实践是检验认识真理性的标准？",
+            options: [
+              "因为实践可以把主观认识放回客观结果中验证。",
+              "因为实践比所有理论都更容易背诵。",
+              "因为只要参与实践就一定能得到正确认识。"
+            ],
+            correct: 0,
+            feedback: "关键是“主观认识”和“客观结果”的对应，不是把实践当成口号。"
+          },
+          {
+            kind: "text",
+            module: "简答题",
+            title: "用自己的话解释感性认识和理性认识的区别。",
+            placeholder: "可以从来源、形式、抽象程度三个角度回答。"
+          },
+          {
+            kind: "voice",
+            module: "口答",
+            title: "口头说明：实践和认识为什么是循环推进的关系？",
+            transcript: "实践产生认识，认识反过来指导实践，新的实践又会修正和发展认识。"
+          }
+        ];
+      }
+
+      return [
+        {
+          kind: "choice",
+          module: "选择题",
+          title: "上下文窗口主要限制了什么？",
+          options: [
+            "模型一次能直接参考的输入内容长度。",
+            "模型最终能学会的所有知识总量。",
+            "模型能不能生成中文回答。"
+          ],
+          correct: 0,
+          feedback: "上下文窗口约束的是本次推理可见内容，不等于模型参数里的全部知识。"
+        },
+        {
+          kind: "text",
+          module: "简答题",
+          title: "用一句话区分 token 和上下文窗口。",
+          placeholder: "例如：token 是文本被模型处理的基本单位；上下文窗口是一次能容纳的 token 上限。"
+        },
+        {
+          kind: "voice",
+          module: "口答",
+          title: "口答：为什么长上下文会带来成本？",
+          transcript: "上下文越长，模型需要处理的信息越多，推理成本和干扰风险都会增加。"
+        }
+      ];
+    }
+
+    function openMasteryCheck() {
+      masteryIndex = 0;
+      selectedCheckAnswer = "";
+      checkSubmitted = false;
+      masteryComplete = false;
+      renderMasteryCheck();
+      showView("masteryCheck");
+    }
+
+    function renderMasteryCheck() {
+      const items = masteryCheckItems(currentLibrary?.type || "self");
+      const item = items[masteryIndex];
+      selectedCheckAnswer = "";
+      checkSubmitted = false;
+      checkProgress.style.width = `${((masteryIndex + 1) / items.length) * 100}%`;
+      submitCheck.textContent = masteryIndex === items.length - 1 ? "提交并查看反馈" : "提交";
+
+      if (item.kind === "choice") {
+        checkCard.innerHTML = `
+          <div class="check-meta"><span>${item.module}</span><span>${masteryIndex + 1} / ${items.length}</span></div>
+          <h2>${item.title}</h2>
+          <div class="answer-list">
+            ${item.options.map((option, index) => `<button class="answer-option" type="button" data-answer="${index}">${option}</button>`).join("")}
+          </div>
+          <div class="check-feedback" hidden>${item.feedback}</div>
+        `;
+        checkCard.querySelectorAll("[data-answer]").forEach(button => {
+          button.addEventListener("click", () => {
+            if (checkSubmitted) return;
+            selectedCheckAnswer = button.dataset.answer;
+            checkCard.querySelectorAll("[data-answer]").forEach(option => option.classList.remove("active"));
+            button.classList.add("active");
+          });
+        });
+        return;
+      }
+
+      if (item.kind === "text") {
+        checkCard.innerHTML = `
+          <div class="check-meta"><span>${item.module}</span><span>${masteryIndex + 1} / ${items.length}</span></div>
+          <h2>${item.title}</h2>
+          <textarea class="check-input" placeholder="${item.placeholder}"></textarea>
+        `;
+        return;
+      }
+
+      checkCard.innerHTML = `
+        <div class="check-meta"><span>${item.module}</span><span>${masteryIndex + 1} / ${items.length}</span></div>
+        <h2>${item.title}</h2>
+        <div class="voice-box">
+          <button class="voice-button" id="voiceAnswer" type="button">口答</button>
+          <p id="voiceTranscript">点击后模拟口答转写。</p>
+        </div>
+      `;
+      document.getElementById("voiceAnswer").addEventListener("click", () => {
+        document.getElementById("voiceTranscript").textContent = item.transcript;
+      });
+    }
+
+    function submitMasteryCheck() {
+      if (masteryComplete) {
+        renderLibraryView();
+        showView("library");
+        return;
+      }
+
+      const items = masteryCheckItems(currentLibrary?.type || "self");
+      const item = items[masteryIndex];
+
+      if (item.kind === "choice" && !checkSubmitted) {
+        const answer = selectedCheckAnswer === "" ? item.correct : Number(selectedCheckAnswer);
+        checkCard.querySelectorAll("[data-answer]").forEach(button => {
+          const index = Number(button.dataset.answer);
+          button.classList.remove("active");
+          if (index === item.correct) button.classList.add("good");
+          if (index === answer && answer !== item.correct) button.classList.add("bad");
+        });
+        const feedback = checkCard.querySelector(".check-feedback");
+        if (feedback) feedback.hidden = false;
+        checkSubmitted = true;
+        submitCheck.textContent = "下一题";
+        return;
+      }
+
+      if (masteryIndex < items.length - 1) {
+        masteryIndex += 1;
+        renderMasteryCheck();
+        return;
+      }
+
+      checkCard.innerHTML = `
+        <div class="check-meta"><span>反馈</span><span>已完成</span></div>
+        <h2>本次检测完成</h2>
+        <div class="check-feedback">这次记录会用于下一次安排：保留当前进度，并在下轮开头加入必要的短回忆。</div>
+      `;
+      checkProgress.style.width = "100%";
+      submitCheck.textContent = "回到学习库";
+      masteryComplete = true;
+    }
+
+    function openKnowledgeBase() {
+      showView("knowledge");
+    }
+
+    const courseNoteRecords = [
+      {
+        id: "class-03",
+        title: "第 3 次课：艺术史中的现代性转向",
+        meta: "录音 42 分钟 · 已整理",
+        transcript: [
+          "老师从十九世纪末的学院传统讲起，强调现代主义不是突然出现的风格，而是艺术家对观看方式、材料和社会环境变化的回应。",
+          "课堂中反复提到印象派不只是画得模糊，而是把瞬间光色、城市生活和主观视觉经验放到画面中心。后面又过渡到后印象派，说明塞尚等人开始重新组织画面结构。"
+        ],
+        summary: [
+          "现代性转向的核心不是某一种画法，而是艺术从再现对象转向表达观看经验。",
+          "印象派关注光色和瞬间经验，后印象派进一步强调结构、秩序和个人表达。",
+          "这节课后续复习时要优先区分：学院传统、印象派、后印象派三者的关注点。"
+        ],
+        notes: [
+          "本节课可以整理成一条主线：学院传统追求稳定规范，印象派转向瞬间视觉，后印象派开始重新建构画面秩序。",
+          "容易混淆点：不要把“印象派=随便画”作为理解。它的关键是现代城市生活、光色变化和观看经验进入绘画。",
+          "下次检测可围绕一个问题：为什么说后印象派既继承印象派，又不满足于印象派？"
+        ]
+      },
+      {
+        id: "class-02",
+        title: "第 2 次课：中国画的笔墨与观看",
+        meta: "录音 36 分钟 · 已整理",
+        transcript: [
+          "老师先解释笔墨不是简单的技法标签，而是把线条、墨色、节奏和作者修养放在一起理解。看中国画不能只问画得像不像，还要看气韵、结构和留白。",
+          "后半段通过山水画例子说明散点透视。老师提醒不要用西方焦点透视去硬套中国画观看方式。"
+        ],
+        summary: [
+          "笔墨是技法和审美判断的结合。",
+          "中国画观看重视气韵、章法、留白和移动视点。",
+          "散点透视与焦点透视的差异，是理解山水画空间的重要入口。"
+        ],
+        notes: [
+          "本节课笔记主线：笔墨 -> 气韵 -> 空间观看。",
+          "复习时先用一幅山水画说明散点透视，再解释为什么不能只用写实标准评价中国画。",
+          "重点概念：笔墨、气韵生动、章法、留白、散点透视。"
+        ]
+      }
+    ];
+
+    function renderNotesView() {
+      const courseCard = currentLibrary?.type === "course" ? `
+        <button class="block-card knowledge-card" type="button" data-note-entry="course-notes">
+          <span class="bc-icon" aria-hidden="true">课</span>
+          <span class="bc-text">
+            <span class="bc-title">课程笔记</span>
+            <span class="bc-sub">每轮上课的录音转写笔记</span>
+          </span>
+        </button>
+      ` : "";
+
+      notesContent.innerHTML = `
+        <button class="block-card knowledge-card" type="button">
+          <span class="bc-icon" aria-hidden="true">图</span>
+          <span class="bc-text">
+            <span class="bc-title">知识图谱</span>
+            <span class="bc-sub">概念关系和知识点连接</span>
+          </span>
+        </button>
+        <button class="block-card knowledge-card" type="button">
+          <span class="bc-icon" aria-hidden="true">章</span>
+          <span class="bc-text">
+            <span class="bc-title">章节视图</span>
+            <span class="bc-sub">按章节组织的学习笔记</span>
+          </span>
+        </button>
+        ${courseCard}
+      `;
+
+      const courseNotesButton = notesContent.querySelector("[data-note-entry='course-notes']");
+      if (courseNotesButton) courseNotesButton.addEventListener("click", openCourseNotes);
+      showView("notes");
+    }
+
+    function openCourseNotes() {
+      courseNoteList.innerHTML = courseNoteRecords.map(record => `
+        <button class="note-entry" type="button" data-course-note="${record.id}">
+          <span>
+            <strong>${record.title}</strong>
+            <span>${record.meta}</span>
+          </span>
+          <em aria-hidden="true">›</em>
+        </button>
+      `).join("");
+      courseNoteList.querySelectorAll("[data-course-note]").forEach(button => {
+        button.addEventListener("click", () => openCourseNoteDetail(button.dataset.courseNote));
+      });
+      showView("courseNotes");
+    }
+
+    function courseNoteById(id) {
+      return courseNoteRecords.find(record => record.id === id) || courseNoteRecords[0];
+    }
+
+    function openCourseNoteDetail(id) {
+      currentCourseNoteId = id;
+      currentCourseNoteTab = "transcript";
+      renderCourseNoteDetail();
+      showView("courseNoteDetail");
+    }
+
+    function renderCourseNoteDetail() {
+      const record = courseNoteById(currentCourseNoteId);
+      const tabs = [
+        ["transcript", "原文转写"],
+        ["summary", "要点总结"],
+        ["notes", "课程笔记"]
+      ];
+      const content = record[currentCourseNoteTab] || [];
+      courseNoteDetailTitle.textContent = record.title.replace(/^第 \d+ 次课：/, "");
+      courseNoteTabs.innerHTML = tabs.map(([key, label]) => `
+        <button class="note-tab ${key === currentCourseNoteTab ? "active" : ""}" type="button" data-note-tab="${key}">${label}</button>
+      `).join("");
+      courseNoteBody.innerHTML = content.map(paragraph => `<p>${paragraph}</p>`).join("");
+      courseNoteTabs.querySelectorAll("[data-note-tab]").forEach(button => {
+        button.addEventListener("click", () => {
+          currentCourseNoteTab = button.dataset.noteTab;
+          renderCourseNoteDetail();
+        });
+      });
+    }
+
+    const materialSamples = [
+      {
+        category: "课堂记录",
+        items: [
+          { kind: "音", title: "第 3 次课录音转写", meta: "音频转写 · 42 分钟" },
+          { kind: "图", title: "课堂板书照片", meta: "图片 · 4 张" }
+        ]
+      },
+      {
+        category: "学习资料",
+        items: [
+          { kind: "PDF", title: "课程讲义：核心概念", meta: "文档 · 18 页" },
+          { kind: "PPT", title: "专题课件：章节导读", meta: "演示文稿 · 32 页" },
+          { kind: "链", title: "公开课程阅读链接", meta: "网页链接" }
+        ]
+      },
+      {
+        category: "考试资料",
+        items: [
+          { kind: "题", title: "阶段测验样题", meta: "文档 · 12 题" },
+          { kind: "图", title: "老师划重点截图", meta: "图片 · 2 张" }
+        ]
+      }
+    ];
+
+    function renderMaterials() {
+      materialsListMode.classList.toggle("active", materialLayout === "list");
+      materialsGridMode.classList.toggle("active", materialLayout === "grid");
+      materialsContent.innerHTML = materialSamples.map(section => `
+        <section class="material-section">
+          <h2>${section.category}</h2>
+          <div class="material-list ${materialLayout}">
+            ${section.items.map(item => `
+              <article class="material-item">
+                <span class="material-kind">${item.kind}</span>
+                <span>
+                  <span class="material-title">${item.title}</span>
+                  <span class="material-meta">${item.meta}</span>
+                </span>
+              </article>
+            `).join("")}
+          </div>
+        </section>
+      `).join("");
+    }
+
+    const planGoals = {
+      exam: ["通过考试", "系统复习", "查漏补缺", "冲刺提分"],
+      course: ["课后复盘", "跟上课堂", "整理笔记", "期末复习"],
+      self: ["入门掌握", "系统学习", "项目实践", "长期积累"]
+    };
+
+    function planTypeLabel(type) {
+      if (type === "exam") return "复习备考";
+      if (type === "course") return "课程伴学";
+      return "自主学习";
+    }
+
+    function defaultPlanDraft(type) {
+      return {
+        type,
+        selectedGoals: [planGoals[type]?.[0] || "系统学习"],
+        scopeMode: "all",
+        scopeText: "",
+        customGoal: "",
+        examDateLabel: "2026 年 7 月 12 日",
+        period: { year: 0, month: 1, week: 0 }
+      };
+    }
+
+    function renderPlanTypeCard(type) {
+      if (type === "exam") {
+        planTypeCard.innerHTML = `
+          <h2>考试时间</h2>
+          <p>直接确定考试日期，系统会按时间倒推节奏。</p>
+          <button class="date-field" id="examDateField" type="button">
+            <span>${planDraft.examDateLabel}</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="17" rx="2"/><path d="M8 3v4"/><path d="M16 3v4"/><path d="M4 10h16"/></svg>
+          </button>
+        `;
+        document.getElementById("examDateField").addEventListener("click", event => {
+          event.currentTarget.classList.add("tapped");
+          setTimeout(() => event.currentTarget.classList.remove("tapped"), 420);
+        });
+        return;
+      }
+
+      if (type === "self") {
+        planTypeCard.innerHTML = `
+          <h2>学习周期</h2>
+          <p>用年月周按出你希望推进的时间。</p>
+          <div class="stepper-grid" id="periodSteppers">
+            ${renderPeriodStepper("year", "年")}
+            ${renderPeriodStepper("month", "月")}
+            ${renderPeriodStepper("week", "周")}
+          </div>
+        `;
+        wirePeriodSteppers();
+        return;
+      }
+
+      planTypeCard.innerHTML = `
+        <h2>学习计划</h2>
+        <p>课程伴学计划暂时锁住。后续会根据每次上课后的课堂记录，生成向后看的复盘安排。</p>
+      `;
+    }
+
+    function renderPeriodStepper(key, label) {
+      return `
+        <div class="stepper">
+          <span class="stepper-label">${label}</span>
+          <div class="stepper-controls">
+            <button class="stepper-button" type="button" data-period="${key}" data-delta="-1">−</button>
+            <span class="stepper-value" id="period-${key}">${planDraft.period[key]}</span>
+            <button class="stepper-button" type="button" data-period="${key}" data-delta="1">+</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function totalPeriodWeeks() {
+      const period = planDraft?.period || { year: 0, month: 1, week: 0 };
+      return Math.max(1, period.year * 52 + period.month * 4 + period.week);
+    }
+
+    function wirePeriodSteppers() {
+      planTypeCard.querySelectorAll("[data-period]").forEach(button => {
+        button.addEventListener("click", () => {
+          const key = button.dataset.period;
+          const delta = Number(button.dataset.delta);
+          planDraft.period[key] = Math.max(0, planDraft.period[key] + delta);
+          if (totalPeriodWeeks() === 1 && planDraft.period.year === 0 && planDraft.period.month === 0 && planDraft.period.week === 0) {
+            planDraft.period.month = 1;
+          }
+          renderPlanTypeCard("self");
+        });
+      });
+    }
+
+    function wireGoalOptions() {
+      planGoalOptions.querySelectorAll(".option-pill").forEach(button => {
+        button.addEventListener("click", () => {
+          const goal = button.dataset.goal;
+          if (planDraft.selectedGoals.includes(goal)) {
+            planDraft.selectedGoals = planDraft.selectedGoals.filter(item => item !== goal);
+          } else {
+            planDraft.selectedGoals.push(goal);
+          }
+          if (!planDraft.selectedGoals.length) planDraft.selectedGoals = [goal];
+          button.classList.toggle("active", planDraft.selectedGoals.includes(goal));
+        });
+      });
+    }
+
+    function wireScopeOptions() {
+      planScopeOptions.querySelectorAll("[data-scope]").forEach(button => {
+        button.classList.toggle("active", button.dataset.scope === planDraft.scopeMode);
+        button.addEventListener("click", () => {
+          planDraft.scopeMode = button.dataset.scope;
+          planScopeOptions.querySelectorAll("[data-scope]").forEach(item => item.classList.toggle("active", item === button));
+          customScopeInput.classList.toggle("open", planDraft.scopeMode === "custom");
+          if (planDraft.scopeMode === "custom") requestAnimationFrame(() => customScopeInput.focus());
+        });
+      });
+      customScopeInput.value = planDraft.scopeText;
+      customScopeInput.classList.toggle("open", planDraft.scopeMode === "custom");
+    }
+
+    function roundToFive(value) {
+      return Math.max(15, Math.min(120, Math.round(value / 5) * 5));
+    }
+
+    function clampWeekly(value) {
+      return Math.max(1, Math.min(7, Math.round(value)));
+    }
+
+    function derivePlanResult() {
+      const type = planDraft.type;
+      const weeks = type === "exam" ? 4 : totalPeriodWeeks();
+      const totalMinutes = type === "exam" ? 720 : Math.max(480, weeks * 150);
+      const weekly = type === "exam" ? 3 : Math.min(5, Math.max(2, Math.round(totalMinutes / weeks / 45)));
+      const session = roundToFive(totalMinutes / weeks / weekly);
+      planResultState = { type, weeks, totalMinutes, weeklyCount: weekly, sessionMinutes: session };
+    }
+
+    function roundPlanMinutes(minutes) {
+      return Math.max(5, Math.round(minutes / 5) * 5);
+    }
+
+    function formatPlanDuration(minutes) {
+      const rounded = roundPlanMinutes(minutes);
+      const hours = Math.floor(rounded / 60);
+      const rest = rounded % 60;
+      if (!hours) return `${rest}分钟`;
+      if (!rest) return `${hours}小时`;
+      return `${hours}小时${rest}分钟`;
+    }
+
+    function scalePlanOutline(template, totalMinutes) {
+      const templateTotal = template.reduce((sum, unit) =>
+        sum + unit.items.reduce((itemSum, item) => itemSum + item.minutes, 0), 0);
+      const ratio = totalMinutes / templateTotal;
+      return template.map(unit => {
+        const items = unit.items.map(item => ({
+          title: item.title,
+          minutes: roundPlanMinutes(item.minutes * ratio)
+        }));
+        return {
+          title: unit.title,
+          minutes: items.reduce((sum, item) => sum + item.minutes, 0),
+          items
+        };
+      });
+    }
+
+    function planOutlineTemplate(type) {
+      if (type === "exam") {
+        return [
+          {
+            title: "马克思主义哲学基础",
+            items: [
+              { title: "世界的物质性与实践", minutes: 60 },
+              { title: "唯物辩证法三大规律", minutes: 70 },
+              { title: "认识论与真理标准", minutes: 50 }
+            ]
+          },
+          {
+            title: "政治经济学核心概念",
+            items: [
+              { title: "商品、货币与价值规律", minutes: 60 },
+              { title: "剩余价值与资本循环", minutes: 70 },
+              { title: "经济制度与发展阶段", minutes: 50 }
+            ]
+          },
+          {
+            title: "认识论与历史观",
+            items: [
+              { title: "实践与认识的关系", minutes: 60 },
+              { title: "真理、价值与认识发展", minutes: 60 },
+              { title: "社会存在与社会意识", minutes: 60 }
+            ]
+          },
+          {
+            title: "科学社会主义与时代发展",
+            items: [
+              { title: "社会形态更替与历史动力", minutes: 55 },
+              { title: "资本主义发展及其矛盾", minutes: 65 },
+              { title: "社会主义发展道路与中国实践", minutes: 60 }
+            ]
+          }
+        ];
+      }
+
+      return [
+        {
+          title: "人工智能基础概览",
+          items: [
+            { title: "AI、机器学习、深度学习的关系", minutes: 45 },
+            { title: "数据、模型、训练与推理", minutes: 55 },
+            { title: "常见应用场景与边界", minutes: 50 }
+          ]
+        },
+        {
+          title: "机器学习入门",
+          items: [
+            { title: "监督学习与无监督学习", minutes: 50 },
+            { title: "分类、回归与聚类任务", minutes: 50 },
+            { title: "过拟合、泛化与评估指标", minutes: 50 }
+          ]
+        },
+        {
+          title: "大模型与应用理解",
+          items: [
+            { title: "Transformer 和上下文窗口", minutes: 55 },
+            { title: "RAG、工具调用与工作流", minutes: 55 },
+            { title: "大模型推理流程与输出控制", minutes: 40 }
+          ]
+        },
+        {
+          title: "模型使用与应用边界",
+          items: [
+            { title: "提示词、上下文与输出控制", minutes: 45 },
+            { title: "RAG、工具调用与应用工作流", minutes: 55 },
+            { title: "模型能力边界与安全约束", minutes: 50 }
+          ]
+        }
+      ];
+    }
+
+    function renderPlanResult() {
+      const state = planResultState;
+      planStageList.innerHTML = scalePlanOutline(planOutlineTemplate(state.type), state.totalMinutes).map(unit => `
+        <article class="plan-unit">
+          <div class="plan-unit-head">
+            <strong>${unit.title}</strong>
+            <span>${formatPlanDuration(unit.minutes)}</span>
+          </div>
+          <ul class="plan-unit-list">
+            ${unit.items.map(item => `
+              <li>${item.title}<span>${formatPlanDuration(item.minutes)}</span></li>
+            `).join("")}
+          </ul>
+        </article>
+      `).join("");
+      weeklyCount.value = state.weeklyCount;
+      sessionMinutes.value = state.sessionMinutes;
+      renderPlanRhythm();
+    }
+
+    function renderPlanRhythm() {
+      const state = planResultState;
+      const sessions = Math.max(1, Math.round(state.totalMinutes / state.sessionMinutes));
+      weeklyCountValue.textContent = `${state.weeklyCount} 次`;
+      sessionMinutesValue.textContent = `${state.sessionMinutes} 分钟`;
+      planMetricGrid.innerHTML = `
+        <div class="metric-card"><strong>${Math.round(state.totalMinutes / 60)} 小时</strong><span>预计总学习量</span></div>
+        <div class="metric-card"><strong>${sessions} 次</strong><span>预计学习次数</span></div>
+        <div class="metric-card"><strong>${state.weeks} 周</strong><span>预计完成时间</span></div>
+        <div class="metric-card"><strong>${planTypeLabel(state.type)}</strong><span>计划类型</span></div>
+      `;
+    }
+
+    function syncRhythmFromWeekly() {
+      planResultState.weeklyCount = Number(weeklyCount.value);
+      planResultState.sessionMinutes = roundToFive(planResultState.totalMinutes / planResultState.weeks / planResultState.weeklyCount);
+      sessionMinutes.value = planResultState.sessionMinutes;
+      renderPlanRhythm();
+    }
+
+    function syncRhythmFromSession() {
+      planResultState.sessionMinutes = Number(sessionMinutes.value);
+      planResultState.weeklyCount = clampWeekly(planResultState.totalMinutes / planResultState.weeks / planResultState.sessionMinutes);
+      weeklyCount.value = planResultState.weeklyCount;
+      renderPlanRhythm();
+    }
+
+    function openPlanView(returnView = "library") {
+      if (currentLibrary?.type === "course") return;
+      planReturnView = returnView;
+      const type = currentLibrary?.type || "self";
+      planDraft = defaultPlanDraft(type);
+      planGoalOptions.innerHTML = planGoals[type].map(goal => `
+        <button class="option-pill ${planDraft.selectedGoals.includes(goal) ? "active" : ""}" type="button" data-goal="${goal}">${goal}</button>
+      `).join("");
+      customGoalInput.value = "";
+      customScopeInput.value = "";
+      renderPlanTypeCard(type);
+      wireGoalOptions();
+      wireScopeOptions();
+      showView("plan");
+    }
+
+    function generatePlanResult() {
+      planDraft.customGoal = customGoalInput.value.trim();
+      planDraft.scopeText = customScopeInput.value.trim();
+      derivePlanResult();
+      renderPlanResult();
+      showView("planResult");
+    }
+
+    function finishPlanAndOpenLibrary() {
+      if (currentLibrary) {
+        currentLibrary.state = "learning";
+        currentLibrary.plan = {
+          type: planResultState?.type || currentLibrary.type || "self",
+          totalMinutes: planResultState?.totalMinutes || 0,
+          weeklyCount: planResultState?.weeklyCount || 0,
+          sessionMinutes: planResultState?.sessionMinutes || 0
+        };
+      }
+      renderFolders();
+      renderLibraryView();
+      showView("library");
+    }
+
+    function openLibraryUpload() {
+      libUploadTag = "";
+      renderLibUpload();
+      showView("libraryUpload");
+    }
+
+    function renderLibUpload() {
+      const type = currentLibrary?.type || "self";
+      const tags = typeTags[type];
+      if (type === "self") {
+        libTagField.style.display = "none";
+        libUploadGrid.innerHTML = renderUploadPanels();
+        return;
+      }
+
+      libTagField.style.display = "grid";
+      libTagGrid.innerHTML = tags.map(tag => `
+        <button class="choice ${tag === libUploadTag ? "active" : ""}" type="button" data-lib-tag="${tag}">${tag}</button>
+      `).join("");
+      libUploadGrid.innerHTML = libUploadTag ? renderUploadPanels() : "";
+
+      libTagGrid.querySelectorAll("[data-lib-tag]").forEach(button => {
+        button.addEventListener("click", () => {
+          libUploadTag = button.dataset.libTag;
+          renderLibUpload();
+        });
+      });
+    }
+
+    function formatClock(total) {
+      const hours = String(Math.floor(total / 3600)).padStart(2, "0");
+      const minutes = String(Math.floor((total % 3600) / 60)).padStart(2, "0");
+      const seconds = String(total % 60).padStart(2, "0");
+      return `${hours}:${minutes}:${seconds}`;
+    }
+
+    function startTimer() {
+      clearInterval(recordTimerId);
+      recordTimerId = setInterval(() => {
+        recordSeconds += 1;
+        recordTimer.textContent = formatClock(recordSeconds);
+      }, 1000);
+    }
+
+    function renderWaveform(idle = false) {
+      waveform.innerHTML = Array.from({ length: 22 }, (_, i) =>
+        `<span style="animation-delay:${(i * 0.07).toFixed(2)}s;animation-duration:${(0.9 + (i % 5) * 0.12).toFixed(2)}s"></span>`
+      ).join("");
+      waveform.classList.toggle("idle", idle);
+    }
+
+    function setRecorderState(state) {
+      const idle = state === "idle";
+      const isPaused = state === "paused";
+      recordingActive = state === "recording";
+      paused = isPaused;
+      pauseButton.classList.toggle("paused", idle || isPaused);
+      waveform.classList.toggle("paused", isPaused);
+      waveform.classList.toggle("idle", idle);
+      recState.classList.toggle("paused", idle || isPaused);
+      recStateText.textContent = idle ? "未开始" : isPaused ? "已暂停" : "录音中";
+      endRecording.disabled = idle && recordSeconds === 0;
+      if (state === "recording") startTimer();
+      else clearInterval(recordTimerId);
+    }
+
+    function openCapture() {
+      if (currentLibrary) captureTitle.textContent = `${currentLibrary.name} · 上课中`;
+      recordSeconds = 0;
+      recordingIndex = 0;
+      recordTimer.textContent = "00:00:00";
+      recordList.innerHTML = "";
+      renderWaveform(true);
+      setRecorderState("idle");
+      showView("capture");
+    }
+
+    function toggleRecording() {
+      if (!recordingActive) {
+        setRecorderState("recording");
+        return;
+      }
+      setRecorderState("paused");
+    }
+
+    function endRecordingSegment() {
+      if (!recordingActive && !paused && recordSeconds === 0) return;
+      clearInterval(recordTimerId);
+      recordingIndex += 1;
+      const item = document.createElement("div");
+      item.className = "record-item";
+      item.innerHTML = `<span>录音 ${recordingIndex}</span><span>${formatClock(recordSeconds)}</span>`;
+      recordList.appendChild(item);
+      recordSeconds = 0;
+      recordTimer.textContent = "00:00:00";
+      setRecorderState("idle");
+    }
+
+    function resetFinishClassAnimation() {
+      finishClassTimers.forEach(timer => clearTimeout(timer));
+      finishClassTimers = [];
+      document.querySelectorAll("[data-finish-step]").forEach(card => {
+        card.classList.remove("active", "done");
+      });
+      finishClassView.classList.remove("complete");
+      finishReturnWrap.classList.remove("show");
+    }
+
+    function runFinishClassAnimation() {
+      resetFinishClassAnimation();
+      const steps = Array.from(document.querySelectorAll("[data-finish-step]"));
+      steps.forEach((card, index) => {
+        finishClassTimers.push(setTimeout(() => {
+          card.classList.add("active");
+        }, index * 620));
+        finishClassTimers.push(setTimeout(() => {
+          card.classList.remove("active");
+          card.classList.add("done");
+          if (index === steps.length - 1) {
+            finishClassView.classList.add("complete");
+            finishReturnWrap.classList.add("show");
+          }
+        }, index * 620 + 480));
+      });
+    }
+
+    function returnToLibraryAfterClass() {
+      resetFinishClassAnimation();
+      if (currentLibrary?.type === "course") currentLibrary.state = "learning";
+      renderLibraryView();
+      showView("library");
+    }
+
+    function endCapture() {
+      clearInterval(recordTimerId);
+      setRecorderState("idle");
+      showView("finishClass");
+      runFinishClassAnimation();
+    }
+
+    function flashMark(kind) {
+      waveform.classList.remove("pulse");
+      void waveform.offsetWidth;
+      waveform.classList.add("pulse");
+      const chip = document.createElement("div");
+      chip.className = `mark-chip ${kind}`;
+      chip.textContent = kind === "q" ? "已标记疑问" : "已标记重点";
+      markLayer.appendChild(chip);
+      setTimeout(() => chip.remove(), 900);
+    }
+
+    function flashSystemAsset(message) {
+      waveform.classList.remove("pulse");
+      void waveform.offsetWidth;
+      waveform.classList.add("pulse");
+      const chip = document.createElement("div");
+      chip.className = "mark-chip k";
+      chip.textContent = message;
+      markLayer.appendChild(chip);
+      setTimeout(() => chip.remove(), 900);
+    }
+
+    function renderFolders() {
+      const query = searchInput.value.trim().toLowerCase();
+      const visibleFolders = folders
+        .map(folder => {
+          const folderMatch = folder.name.toLowerCase().includes(query);
+          const libraries = folder.libraries.filter(library => {
+            return !query || folderMatch || library.name.toLowerCase().includes(query);
+          });
+          return { ...folder, libraries, folderMatch };
+        })
+        .filter(folder => !query || folder.folderMatch || folder.libraries.length);
+
+      folderList.innerHTML = visibleFolders.map(folder => {
+        const folderStyle = folder.color ? `style="background: ${folder.color};"` : "";
+        return `
+          <article class="folder ${folder.collapsed ? "collapsed" : ""}" data-folder-id="${folder.id}" ${folderStyle}>
+            <div class="folder-header" draggable="true" data-drag-type="folder" data-id="${folder.id}">
+              <button class="more-button" type="button" data-action-type="folder" data-action-id="${folder.id}" aria-label="文件夹操作">⋯</button>
+              <button class="chevron-button" type="button" data-toggle-folder="${folder.id}" aria-expanded="${!folder.collapsed}" aria-label="收起或展开">
+                <span class="chevron" aria-hidden="true">›</span>
+              </button>
+              <span class="folder-title">${folder.name}</span>
+              <span class="drag-grip" aria-hidden="true">⋮⋮</span>
+            </div>
+            <div class="folder-body" data-drop-folder="${folder.id}">
+              ${folder.libraries.map(library => `
+                <div class="library" draggable="true" data-drag-type="library" data-id="${library.id}" data-folder-id="${folder.id}">
+                  <button class="more-button" type="button" data-action-type="library" data-action-id="${library.id}" aria-label="学习库操作">⋯</button>
+                  <span class="library-title">${library.name}</span>
+                  <span class="drag-grip" aria-hidden="true">⋮⋮</span>
+                </div>
+              `).join("")}
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      wireFolderInteractions();
+    }
+
+    function wireFolderInteractions() {
+      folderList.querySelectorAll("[data-toggle-folder]").forEach(button => {
+        button.addEventListener("click", event => {
+          event.stopPropagation();
+          const folder = folderById(button.dataset.toggleFolder);
+          folder.collapsed = !folder.collapsed;
+          renderFolders();
+        });
+      });
+
+      folderList.querySelectorAll("[data-action-type]").forEach(button => {
+        button.addEventListener("click", event => {
+          event.stopPropagation();
+          setActionMenu(true, {
+            type: button.dataset.actionType,
+            id: button.dataset.actionId
+          }, button);
+        });
+      });
+
+      folderList.querySelectorAll("[draggable='true']").forEach(item => {
+        item.addEventListener("dragstart", event => {
+          if (event.target.closest(".more-button") || event.target.closest(".chevron-button")) {
+            event.preventDefault();
+            return;
+          }
+          dragState = {
+            type: item.dataset.dragType,
+            id: item.dataset.id,
+            folderId: item.dataset.folderId || ""
+          };
+          event.dataTransfer.effectAllowed = "move";
+          event.dataTransfer.setData("text/plain", JSON.stringify(dragState));
+        });
+        item.addEventListener("dragend", () => {
+          dragState = null;
+          clearDragMarkers();
+        });
+      });
+
+      folderList.querySelectorAll(".folder").forEach(folderNode => {
+        folderNode.addEventListener("dragover", event => {
+          if (!dragState) return;
+          event.preventDefault();
+          clearDragMarkers();
+          if (dragState.type === "folder") {
+            const placement = placementFromEvent(folderNode, event);
+            folderNode.classList.add(placement === "before" ? "insert-before" : "insert-after");
+            return;
+          }
+          folderNode.classList.add("drag-over");
+        });
+        folderNode.addEventListener("dragleave", () => clearDragMarkers());
+        folderNode.addEventListener("drop", event => {
+          if (!dragState) return;
+          event.preventDefault();
+          const targetFolderId = folderNode.dataset.folderId;
+          if (dragState.type === "folder") {
+            const placement = placementFromEvent(folderNode, event);
+            moveFolderBefore(dragState.id, folderTargetAfter(targetFolderId, placement));
+          } else {
+            moveLibraryToFolder(dragState.id, targetFolderId);
+          }
+          clearDragMarkers();
+        });
+      });
+
+      folderList.querySelectorAll(".library").forEach(libraryNode => {
+        libraryNode.addEventListener("click", event => {
+          if (event.target.closest(".more-button") || event.target.closest(".drag-grip")) return;
+          openLibrary(libraryNode.dataset.id);
+        });
+        libraryNode.addEventListener("dragover", event => {
+          if (!dragState || dragState.type !== "library") return;
+          event.preventDefault();
+          event.stopPropagation();
+          clearDragMarkers();
+          const placement = placementFromEvent(libraryNode, event);
+          libraryNode.classList.add(placement === "before" ? "insert-before" : "insert-after");
+        });
+        libraryNode.addEventListener("dragleave", () => clearDragMarkers());
+        libraryNode.addEventListener("drop", event => {
+          if (!dragState || dragState.type !== "library") return;
+          event.preventDefault();
+          event.stopPropagation();
+          const placement = placementFromEvent(libraryNode, event);
+          const targetFolderId = libraryNode.dataset.folderId;
+          moveLibraryRelative(dragState.id, targetFolderId, libraryNode.dataset.id, placement);
+          clearDragMarkers();
+        });
+      });
+    }
+
+    openSidebar.addEventListener("click", () => setSidebar(true));
+    closeSidebar.addEventListener("click", () => setSidebar(false));
+    closeScrim.addEventListener("click", () => setSidebar(false));
+    document.querySelectorAll("[data-primary-tab]").forEach(tab => {
+      tab.addEventListener("click", () => showView(tab.dataset.primaryTab));
+    });
+    openCreate.addEventListener("click", () => setCreateMenu(!createPopover.classList.contains("open")));
+    openSearch.addEventListener("click", () => setSearch(true));
+    closeSearch.addEventListener("click", event => {
+      event.preventDefault();
+      setSearch(false);
+    });
+    searchInput.addEventListener("input", renderFolders);
+
+    createFolder.addEventListener("click", () => {
+      setCreateMenu(false);
+      openFolderModal();
+    });
+
+    createLibrary.addEventListener("click", () => {
+      setCreateMenu(false);
+      openLibraryCreate();
+    });
+
+    cancelFolder.addEventListener("click", closeFolderModal);
+    folderModal.addEventListener("click", event => {
+      if (event.target === folderModal) closeFolderModal();
+    });
+
+    saveFolder.addEventListener("click", () => {
+      const name = folderName.value.trim();
+      if (!name) {
+        folderName.focus();
+        return;
+      }
+      folders.push({
+        id: `folder-${Date.now()}`,
+        name,
+        color: selectedColor,
+        collapsed: false,
+        libraries: []
+      });
+      closeFolderModal();
+      renderFolders();
+    });
+
+    typeGrid.querySelectorAll("[data-type]").forEach(button => {
+      button.addEventListener("click", () => {
+        selectedType = button.dataset.type;
+        selectedTag = "";
+        skippedUpload = false;
+        renderTypeChoices();
+        renderUploadSection();
+      });
+    });
+
+    skipUpload.addEventListener("click", () => {
+      skippedUpload = true;
+      selectedTag = "";
+      renderUploadSection();
+    });
+
+    saveLibrary.addEventListener("click", createLibraryInUncategorized);
+    saveLibraryTop.addEventListener("click", createLibraryInUncategorized);
+    backHome.addEventListener("click", () => showView("home"));
+    backLibrary.addEventListener("click", () => showView("home"));
+    backMasteryCheck.addEventListener("click", () => showView("library"));
+    libraryMore.addEventListener("click", event => {
+      event.stopPropagation();
+      if (currentLibrary?.state !== "learning" || currentLibrary?.type === "course") return;
+      setActionMenu(true, { type: "current-library" }, libraryMore);
+    });
+    backKnowledge.addEventListener("click", () => showView("library"));
+    backRawMaterials.addEventListener("click", () => showView("knowledge"));
+    backNotes.addEventListener("click", () => showView("knowledge"));
+    backCourseNotes.addEventListener("click", () => showView("notes"));
+    backCourseNoteDetail.addEventListener("click", () => showView("courseNotes"));
+    backPlan.addEventListener("click", () => showView(planReturnView));
+    backPlanResult.addEventListener("click", () => showView("plan"));
+    finishPlan.addEventListener("click", finishPlanAndOpenLibrary);
+    openRawMaterials.addEventListener("click", () => {
+      renderMaterials();
+      showView("rawMaterials");
+    });
+    openNotesView.addEventListener("click", renderNotesView);
+    materialsListMode.addEventListener("click", () => {
+      materialLayout = "list";
+      renderMaterials();
+    });
+    materialsGridMode.addEventListener("click", () => {
+      materialLayout = "grid";
+      renderMaterials();
+    });
+    uploadFromMaterials.addEventListener("click", openLibraryUpload);
+    generatePlan.addEventListener("click", generatePlanResult);
+    submitCheck.addEventListener("click", submitMasteryCheck);
+    weeklyCount.addEventListener("input", syncRhythmFromWeekly);
+    sessionMinutes.addEventListener("input", syncRhythmFromSession);
+    backLibUpload.addEventListener("click", () => showView("library"));
+    backCapture.addEventListener("click", () => showView("library"));
+    pauseButton.addEventListener("click", toggleRecording);
+    endRecording.addEventListener("click", endRecordingSegment);
+    endClass.addEventListener("click", endCapture);
+    openPhotoPage.addEventListener("click", () => {
+      flashSystemAsset("已打开系统相机");
+      cameraInput.click();
+    });
+    openImagePage.addEventListener("click", () => {
+      flashSystemAsset("已打开系统相册");
+      imageInput.click();
+    });
+    backFinishClass.addEventListener("click", returnToLibraryAfterClass);
+    returnLibraryAfterClass.addEventListener("click", returnToLibraryAfterClass);
+    cameraInput.addEventListener("change", () => flashSystemAsset("照片已加入本次课"));
+    imageInput.addEventListener("change", () => flashSystemAsset("图片已加入本次课"));
+
+    document.querySelectorAll("[data-mark]").forEach(button => {
+      button.addEventListener("click", () => {
+        flashMark(button.dataset.mark);
+        button.classList.add("active");
+        setTimeout(() => button.classList.remove("active"), 360);
+      });
+    });
+
+    deleteAction.addEventListener("click", () => {
+      if (!actionTarget || deleteAction.classList.contains("disabled")) return;
+      if (actionTarget.type === "folder") deleteEmptyFolder(actionTarget.id);
+      setActionMenu(false);
+    });
+
+    adjustPlanAction.addEventListener("click", () => {
+      setActionMenu(false);
+      openPlanView("library");
+    });
+
+    document.addEventListener("click", event => {
+      if (!createPopover.contains(event.target) && !openCreate.contains(event.target)) {
+        setCreateMenu(false);
+      }
+      if (!actionMenu.contains(event.target) && !event.target.closest("[data-action-type]")) {
+        setActionMenu(false);
+      }
+    });
+
+    renderSwatches();
+    renderTypeChoices();
+    renderUploadSection();
+    renderFolders();
+    renderStudyHeatmap();
+
+    if (window.location.hash === "#create") openLibraryCreate();
+    if (window.location.hash === "#create-upload") {
+      openLibraryCreate();
+      selectedTag = "课堂记录";
+      renderUploadSection();
+    }
+    if (window.location.hash === "#create-self") {
+      openLibraryCreate();
+      selectedType = "self";
+      renderTypeChoices();
+      renderUploadSection();
+    }
+    if (window.location.hash === "#library-course") openLibrary("test-course");
+    if (window.location.hash === "#library-exam") openLibrary("test-exam");
+    if (window.location.hash === "#library-self") openLibrary("test-self");
+  </script>
+</body>
+</html>

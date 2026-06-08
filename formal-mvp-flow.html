@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Zlzl 正式 MVP 闭环流程图</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --ink: #111827;
+    --body: #374151;
+    --muted: #6b7280;
+    --line: #d1d5db;
+    --soft: #f9fafb;
+    --blue: #3b82f6;
+    --blue-soft: #eff6ff;
+    --green: #059669;
+    --green-soft: #ecfdf5;
+    --orange: #ea580c;
+    --orange-soft: #fff7ed;
+    --violet: #7c3aed;
+    --violet-soft: #f5f3ff;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+  }
+
+  main {
+    width: min(1440px, calc(100vw - 40px));
+    margin: 0 auto;
+    padding: 28px 0 34px;
+  }
+
+  h1 {
+    margin: 0 0 18px;
+    font-size: 28px;
+    line-height: 1.25;
+    letter-spacing: 0;
+  }
+
+  .flow {
+    position: relative;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 28px;
+    overflow: auto;
+    background: #fff;
+  }
+
+  .canvas {
+    position: relative;
+    width: 1320px;
+    height: 760px;
+  }
+
+  .node {
+    position: absolute;
+    width: 176px;
+    min-height: 92px;
+    padding: 13px 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--soft);
+  }
+
+  .node strong {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 16px;
+    line-height: 1.25;
+  }
+
+  .node span {
+    display: block;
+    color: var(--body);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .input { background: #fff; }
+  .service { background: var(--blue-soft); border-color: #bfdbfe; }
+  .kb { background: var(--green-soft); border-color: #a7f3d0; }
+  .ai { background: var(--violet-soft); border-color: #ddd6fe; }
+  .study { background: #fff; border-color: #e5e7eb; }
+  .check { background: var(--orange-soft); border-color: #fed7aa; }
+  .memory { background: #f8fafc; border-color: #cbd5e1; }
+  .user { width: 134px; min-height: 64px; text-align: center; background: #ffffff; }
+  .view {
+    width: 218px;
+    min-height: 74px;
+    background: #ffffff;
+    border-color: #bbf7d0;
+  }
+
+  .pill {
+    display: inline-block;
+    margin-bottom: 6px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    color: #fff;
+    background: var(--violet);
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  .note {
+    position: absolute;
+    width: 280px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: #fff;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.55;
+  }
+
+  svg {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .edge { stroke: #4b5563; stroke-width: 2.2; fill: none; }
+  .edge-blue { stroke: var(--blue); }
+  .edge-green { stroke: var(--green); }
+  .edge-orange { stroke: var(--orange); }
+  .edge-dash { stroke-dasharray: 7 6; }
+
+  .label {
+    position: absolute;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>Zlzl 正式 MVP 闭环流程图</h1>
+  <section class="flow" aria-label="Zlzl 正式 MVP 闭环流程图">
+    <div class="canvas">
+      <svg viewBox="0 0 1320 760" aria-hidden="true">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="#4b5563"/>
+          </marker>
+          <marker id="arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="#3b82f6"/>
+          </marker>
+          <marker id="arrow-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="#059669"/>
+          </marker>
+          <marker id="arrow-orange" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="#ea580c"/>
+          </marker>
+        </defs>
+
+        <path class="edge" d="M176 286 H250" marker-end="url(#arrow)"/>
+        <path class="edge edge-blue" d="M426 286 H500" marker-end="url(#arrow-blue)"/>
+        <path class="edge edge-green" d="M588 240 V208" marker-end="url(#arrow-green)"/>
+        <path class="edge" d="M838 156 V240" marker-end="url(#arrow)"/>
+        <path class="edge edge-blue edge-dash" d="M676 286 H750" marker-end="url(#arrow-blue)"/>
+        <path class="edge" d="M838 332 V438" marker-end="url(#arrow)"/>
+        <path class="edge edge-orange" d="M746 484 H632" marker-end="url(#arrow-orange)"/>
+        <path class="edge edge-orange" d="M456 484 H382" marker-end="url(#arrow-orange)"/>
+        <path class="edge edge-green" d="M294 530 V626 H736" marker-end="url(#arrow-green)"/>
+        <path class="edge edge-dash" d="M926 626 H1112 V110 H926" marker-end="url(#arrow)"/>
+        <path class="edge edge-orange edge-dash" d="M1186 318 H1010 V110 H926" marker-end="url(#arrow-orange)"/>
+        <path class="edge edge-orange edge-dash" d="M1186 346 H1000 V484 H922" marker-end="url(#arrow-orange)"/>
+        <path class="edge edge-orange edge-dash" d="M1186 374 H1010 V484 H632" marker-end="url(#arrow-orange)"/>
+      </svg>
+
+      <div class="node input" style="left: 0; top: 240px;">
+        <strong>多模态输入</strong>
+        <span>课堂录音、文档、图片、视频、用户笔记、用户目标</span>
+      </div>
+
+      <div class="node service" style="left: 250px; top: 240px;">
+        <strong>商用处理服务</strong>
+        <span>ASR 转写、文档解析、切片、入库，优先接成熟方案</span>
+      </div>
+
+      <div class="node kb" style="left: 500px; top: 240px;">
+        <strong>商用知识库 / RAG</strong>
+        <span>沉淀课程内容、来源、章节、可检索材料，并支撑笔记视图</span>
+      </div>
+
+      <div class="node ai" style="left: 750px; top: 64px;">
+        <span class="pill">LLM</span>
+        <strong>学习计划生成</strong>
+        <span>先确定本次学什么、怎么学、完成后验收什么</span>
+      </div>
+
+      <div class="node ai" style="left: 750px; top: 240px;">
+        <span class="pill">AI</span>
+        <strong>上下文组装</strong>
+        <span>按学习计划检索知识库，合并 memory 摘要和用户选择</span>
+      </div>
+
+      <div class="node view" style="left: 488px; top: 116px;">
+        <strong>笔记视图</strong>
+        <span>工具性功能：知识图谱视图 + 章节视图</span>
+      </div>
+
+      <div class="node study" style="left: 746px; top: 438px;">
+        <strong>学习 Part</strong>
+        <span>看笔记、章节学习、知识卡片、提问、标记疑问；尽量在产品内发生</span>
+      </div>
+
+      <div class="node check" style="left: 456px; top: 438px;">
+        <strong>验收 Part</strong>
+        <span>词卡、选择题、简答题、口答、语音复述、错因追问</span>
+      </div>
+
+      <div class="node ai" style="left: 206px; top: 438px;">
+        <span class="pill">LLM</span>
+        <strong>评估与反馈</strong>
+        <span>评分、点评、错因、薄弱点、下次建议</span>
+      </div>
+
+      <div class="node memory" style="left: 736px; top: 580px; width: 190px;">
+        <strong>Memory 写入</strong>
+        <span>保存学习计划、学习行为、作答、反馈、问题和下次建议；MVP 暂不做状态库</span>
+      </div>
+
+      <div class="node user" style="left: 1186px; top: 302px;">
+        <strong>用户</strong>
+        <span>选择范围 / 学习 / 验收</span>
+      </div>
+
+      <div class="label" style="left: 18px; top: 212px;">课程资料进入产品</div>
+      <div class="label" style="left: 586px; top: 92px;">工具视图，不参与主循环</div>
+      <div class="label" style="left: 684px; top: 256px;">按计划调 RAG</div>
+      <div class="label" style="left: 754px; top: 204px;">按计划组装上下文</div>
+      <div class="label" style="left: 510px; top: 412px;">完成学习后进入验收</div>
+      <div class="label" style="left: 272px; top: 560px;">交互证据回写</div>
+      <div class="label" style="left: 998px; top: 214px;">下一轮继续生成计划</div>
+      <div class="label" style="left: 1004px; top: 82px;">用户参与计划</div>
+      <div class="label" style="left: 1004px; top: 442px;">用户参与学习</div>
+      <div class="label" style="left: 860px; top: 442px;">用户参与验收</div>
+    </div>
+  </section>
+</main>
+</body>
+</html>

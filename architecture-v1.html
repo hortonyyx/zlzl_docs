@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Zlzl 产品架构 · 主闭环</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --paper: #ffffff;
+    --ink: #101828;
+    --body: #344054;
+    --muted: #667085;
+    --faint: #98a2b3;
+    --line: #e5e7eb;
+    --line-strong: #d1d5db;
+    --brand: #4f7cff;
+    --brand-soft: #f3f6ff;
+    --teal: #27a69a;
+    --teal-soft: #f2fbfa;
+    --purple: #9b7cf6;
+    --purple-soft: #f7f4ff;
+    --orange: #ff8a4c;
+    --orange-soft: #fff5ee;
+    --mint: #dff7ee;
+    --mint-ink: #26745a;
+    --ink-card: #223047;
+    --white: #ffffff;
+    --shadow-lg: 0 24px 70px -54px rgba(16, 24, 40, 0.32);
+    --shadow-sm: 0 12px 32px -28px rgba(16, 24, 40, 0.24);
+    --radius: 8px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html,
+  body {
+    margin: 0;
+    min-height: 100%;
+    overflow-x: hidden;
+    color: var(--ink);
+    background: var(--bg);
+    font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    width: min(1500px, calc(100vw - 48px));
+    margin: 0 auto;
+    padding: 34px 0 46px;
+  }
+
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 28px;
+    align-items: end;
+    margin-bottom: 18px;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    color: var(--brand);
+    font-size: 12px;
+    font-weight: 820;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .eyebrow::before {
+    content: "";
+    width: 30px;
+    height: 2px;
+    background: var(--brand);
+  }
+
+  h1 {
+    max-width: 930px;
+    margin: 0;
+    font-size: clamp(34px, 3.55vw, 52px);
+    line-height: 1.08;
+    letter-spacing: 0;
+    font-weight: 860;
+  }
+
+  .lead {
+    max-width: 960px;
+    margin: 14px 0 0;
+    color: var(--body);
+    font-size: clamp(15px, 1.2vw, 18px);
+    line-height: 1.68;
+  }
+
+  .lead strong { color: var(--ink); }
+
+  .stamp {
+    min-height: 148px;
+    padding: 18px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: rgba(255, 253, 250, 0.92);
+    box-shadow: none;
+  }
+
+  .stamp .version {
+    color: var(--faint);
+    font-size: 12px;
+    font-weight: 820;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .stamp .claim {
+    margin-top: 12px;
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.48;
+    font-weight: 780;
+  }
+
+  .stamp .date {
+    margin-top: 18px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  .takeaway {
+    min-height: 110px;
+    padding: 16px 18px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: rgba(255,255,255,0.86);
+    box-shadow: none;
+  }
+
+  .takeaway .kicker {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 9px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 820;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .pin {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--brand);
+  }
+
+  .takeaway:nth-child(2) .pin { background: var(--purple); }
+  .takeaway:nth-child(3) .pin { background: var(--orange); }
+
+  .takeaway h2 {
+    margin: 0 0 7px;
+    font-size: 18px;
+    line-height: 1.3;
+    letter-spacing: 0;
+  }
+
+  .takeaway p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.58;
+  }
+
+  .board {
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--paper);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .board-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 18px;
+    align-items: center;
+    padding: 17px 24px;
+    border-bottom: 1px solid var(--line);
+    background: #ffffff;
+  }
+
+  .board-title {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+    align-items: baseline;
+  }
+
+  .board-title h2 {
+    margin: 0;
+    font-size: 20px;
+    letter-spacing: 0;
+  }
+
+  .board-title span,
+  .board-note {
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .board-note { white-space: nowrap; }
+
+  .canvas-wrap {
+    width: 100%;
+    overflow: visible;
+    padding: 22px 24px 24px;
+    background: #ffffff;
+  }
+
+  .stage {
+    position: relative;
+    width: 1392px;
+    height: 800px;
+    transform-origin: top left;
+  }
+
+  .arrows {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 1392px;
+    height: 800px;
+    pointer-events: none;
+  }
+
+  .zone {
+    position: absolute;
+    z-index: 0;
+    border: 1px solid rgba(37,99,235,0.18);
+    border-radius: 10px;
+    background: rgba(37,99,235,0.025);
+  }
+
+  .zone .zone-label {
+    position: absolute;
+    top: -14px;
+    left: 18px;
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 0 12px;
+    border: 1px solid rgba(37,99,235,0.18);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--brand);
+    font-size: 12px;
+    font-weight: 820;
+  }
+
+  #course-zone {
+    left: 444px;
+    top: 38px;
+    width: 420px;
+    height: 446px;
+  }
+
+  #course-zone .zone-label {
+    top: -24px;
+  }
+
+  #learning-zone {
+    left: 270px;
+    top: 512px;
+    width: 1000px;
+    height: 268px;
+    border-color: rgba(124,58,237,0.2);
+    background: rgba(124,58,237,0.035);
+  }
+
+  #learning-zone .zone-label {
+    color: var(--purple);
+    border-color: rgba(124,58,237,0.24);
+  }
+
+  .node {
+    position: absolute;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    min-height: 64px;
+    padding: 14px 16px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: rgba(255,255,255,0.96);
+    box-shadow: 0 16px 36px -32px rgba(16, 24, 40, 0.24);
+  }
+
+  .node .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ink);
+    font-size: 16px;
+    font-weight: 820;
+    line-height: 1.25;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    flex: none;
+    border-radius: 50%;
+    background: var(--brand);
+  }
+
+  .node .desc {
+    color: var(--muted);
+    font-size: 12.5px;
+    line-height: 1.52;
+  }
+
+  .major {
+    color: #fff;
+    border: 0;
+    box-shadow: 0 18px 42px -30px rgba(16,24,40,0.6);
+  }
+
+  .major .tag,
+  .major .desc { color: #fff; }
+
+  .major .desc { opacity: 0.86; }
+
+  #input {
+    left: 58px;
+    top: 206px;
+    width: 210px;
+    min-height: 94px;
+    border-left: 4px solid var(--brand);
+  }
+
+  #storage-frame {
+    position: absolute;
+    z-index: 1;
+    left: 488px;
+    top: 52px;
+    width: 314px;
+    height: 92px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: #f9fbff;
+  }
+
+  #storage-frame span {
+    position: absolute;
+    top: 6px;
+    left: 102px;
+    padding: 3px 10px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #ffffff;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 780;
+  }
+
+  #vec,
+  #raw {
+    min-height: 54px;
+    background: var(--brand-soft);
+    border-color: #bfdbfe;
+  }
+
+  #vec .tag,
+  #raw .tag {
+    color: var(--brand);
+    font-size: 13px;
+  }
+
+  #vec { left: 512px; top: 82px; width: 122px; }
+  #raw { left: 656px; top: 82px; width: 122px; }
+
+  #kb {
+    left: 512px;
+    top: 172px;
+    width: 300px;
+    height: 108px;
+    background: var(--brand);
+  }
+
+  #state {
+    left: 512px;
+    top: 336px;
+    width: 300px;
+    height: 108px;
+    background: var(--mint);
+    border: 1px solid #bcebd6;
+    color: var(--mint-ink);
+  }
+
+  #state .tag,
+  #state .desc {
+    color: var(--mint-ink);
+  }
+
+  .detail {
+    min-height: 58px;
+    background: var(--teal-soft);
+    border-color: #ccfbf1;
+  }
+
+  .detail .tag {
+    color: var(--teal);
+    font-size: 13px;
+  }
+
+  #record { left: 898px; top: 296px; width: 140px; }
+  #memory { left: 898px; top: 408px; width: 140px; }
+
+  #notes {
+    left: 900px;
+    top: 96px;
+    width: 260px;
+    height: 176px;
+    border-left: 4px solid var(--purple);
+  }
+
+  #notes .dot { background: var(--purple); }
+
+  .subview {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .subview span {
+    padding: 10px 11px;
+    border: 1px solid #ddd6fe;
+    border-radius: 7px;
+    background: var(--purple-soft);
+    color: var(--purple);
+    font-size: 13px;
+    font-weight: 780;
+  }
+
+  .llm {
+    color: #fff;
+    border: 0;
+    background: var(--ink-card);
+  }
+
+  .llm .tag,
+  .llm .desc { color: #fff; }
+
+  .llm .desc { opacity: 0.78; }
+
+  .llm-pill {
+    position: absolute;
+    top: 9px;
+    right: 10px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.16);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 850;
+    letter-spacing: 0.06em;
+  }
+
+  #selector {
+    left: 388px;
+    top: 582px;
+    width: 178px;
+    height: 84px;
+  }
+
+  #orchestrator {
+    left: 654px;
+    top: 582px;
+    width: 178px;
+    height: 84px;
+  }
+
+  #modules {
+    left: 890px;
+    top: 526px;
+    width: 280px;
+    height: 240px;
+    border-left: 4px solid var(--teal);
+  }
+
+  #modules .dot { background: var(--teal); }
+
+  .chips {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .chip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 29px;
+    padding: 6px 8px;
+    border: 1px solid #ccfbf1;
+    border-radius: 7px;
+    background: var(--teal-soft);
+    color: var(--teal);
+    font-size: 11.2px;
+    font-weight: 760;
+    line-height: 1.28;
+    text-align: center;
+  }
+
+  #evaluator {
+    left: 1110px;
+    top: 294px;
+    width: 164px;
+    height: 72px;
+  }
+
+  .person {
+    position: absolute;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    background: var(--orange);
+    color: #fff;
+    box-shadow: 0 18px 36px -24px rgba(234, 88, 12, 0.65);
+    font-size: 13px;
+    font-weight: 850;
+  }
+
+  #user-choice { left: 280px; top: 588px; }
+  #user-notes { left: 1180px; top: 170px; }
+  #user-learn { left: 1188px; top: 610px; }
+
+  .callout {
+    position: absolute;
+    z-index: 3;
+    max-width: 178px;
+    padding: 7px 10px;
+    border: 1px solid rgba(234,88,12,0.24);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--orange);
+    font-size: 11.5px;
+    font-weight: 820;
+    line-height: 1.2;
+    box-shadow: 0 12px 26px -22px rgba(182,67,45,0.65);
+    white-space: nowrap;
+  }
+
+  #call-choice { left: 158px; top: 610px; }
+  #call-notes { left: 1262px; top: 192px; }
+  #call-learn { left: 1268px; top: 632px; }
+
+  .edge-label {
+    position: absolute;
+    z-index: 4;
+    padding: 3px 8px;
+    border: 1px solid rgba(102,112,133,0.2);
+    border-radius: 999px;
+    background: rgba(255,255,255,0.94);
+    color: var(--body);
+    font-size: 11px;
+    font-weight: 780;
+    white-space: nowrap;
+  }
+
+  .edge-label.green {
+    color: var(--teal);
+    border-color: rgba(15,118,110,0.22);
+  }
+
+  #lbl-index { left: 644px; top: 308px; }
+  #lbl-record { left: 1038px; top: 316px; }
+  #lbl-write { left: 940px; top: 374px; }
+  #lbl-memory { left: 688px; top: 524px; }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    align-items: center;
+    padding: 15px 24px 18px;
+    border-top: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.74);
+    color: var(--muted);
+    font-size: 12.5px;
+  }
+
+  .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .swatch {
+    width: 26px;
+    height: 0;
+    border-top: 3px solid var(--body);
+  }
+
+  .swatch.green { border-top-color: var(--teal); }
+  .swatch.thin {
+    border-top-width: 1.5px;
+    border-top-color: var(--line-strong);
+  }
+
+  .llmkey {
+    width: 18px;
+    height: 12px;
+    border-radius: 3px;
+    background: var(--ink-card);
+  }
+
+  @media (max-width: 960px) {
+    .page {
+      width: min(100vw - 24px, 1500px);
+      padding-top: 24px;
+    }
+
+    .hero,
+    .summary,
+    .board-head {
+      grid-template-columns: 1fr;
+    }
+
+    h1 {
+      font-size: 30px;
+      line-height: 1.14;
+      word-break: break-word;
+    }
+
+    .stamp { min-height: auto; }
+    .board-note { white-space: normal; }
+    .canvas-wrap { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero" aria-labelledby="page-title">
+      <div>
+        <div class="eyebrow">Product Architecture</div>
+        <h1 id="page-title">Zlzl 产品架构：从资料沉淀到长期伴学闭环</h1>
+        <p class="lead">
+          <strong>课程库</strong>是一门课的长期学习容器。资料进入知识库，用户通过笔记视图理解课程结构，也参与选择本次学习范围；交互模块产生学习证据，再回写状态库，驱动下一次更准确的学习安排。
+        </p>
+      </div>
+      <aside class="stamp" aria-label="版本说明">
+        <div class="version">Architecture v9 · Flow poster</div>
+        <div class="claim">对外重点：用户看得见课程结构，也参与学习闭环。</div>
+        <div class="date">2026-06-03 · 深色卡为 AI 编排节点</div>
+      </aside>
+    </section>
+
+    <section class="summary" aria-label="架构核心结论">
+      <article class="takeaway">
+        <div class="kicker"><span class="pin"></span>Container</div>
+        <h2>课程库是一门课的完整单元</h2>
+        <p>知识点、来源、章节关系、交互记录和学习状态都在同一个长期容器里沉淀。</p>
+      </article>
+      <article class="takeaway">
+        <div class="kicker"><span class="pin"></span>User Control</div>
+        <h2>用户参与内容选择</h2>
+        <p>用户可以从图谱、章节、薄弱点或目标中决定这一次学什么。</p>
+      </article>
+      <article class="takeaway">
+        <div class="kicker"><span class="pin"></span>Evidence</div>
+        <h2>交互模块产生学习证据</h2>
+        <p>作答、复述、反馈和追问会更新状态库，让下一次学习更准确。</p>
+      </article>
+    </section>
+
+    <section class="board" aria-label="Zlzl 产品架构主闭环图">
+      <div class="board-head">
+        <div class="board-title">
+          <h2>主闭环</h2>
+          <span>资料沉淀 → 知识与状态 → 用户参与选择 → 交互学习 → 证据回写</span>
+        </div>
+        <div class="board-note">运行时 AI 可按需检索知识库，图中不逐一连线</div>
+      </div>
+
+      <div class="canvas-wrap">
+        <div class="stage" id="stage">
+          <div class="zone" id="course-zone"><span class="zone-label">课程库 · 一门课的长期容器</span></div>
+          <div class="zone" id="learning-zone"><span class="zone-label">下一次学习由用户选择与状态推荐共同驱动</span></div>
+
+          <svg class="arrows" viewBox="0 0 1392 800" aria-hidden="true">
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+                <path d="M0,0 L10,5 L0,10 z" fill="#344054"/>
+              </marker>
+              <marker id="arrow-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+                <path d="M0,0 L10,5 L0,10 z" fill="#0f766e"/>
+              </marker>
+              <marker id="arrow-user" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+                <path d="M0,0 L10,5 L0,10 z" fill="#ea580c"/>
+              </marker>
+            </defs>
+
+            <path d="M268 253 H510" fill="none" stroke="#344054" stroke-width="2.3" marker-end="url(#arrow)"/>
+
+            <path d="M573 136 V158 H718 V136 M645 158 V170" fill="none" stroke="#98a2b3" stroke-width="1.5"/>
+            <path d="M662 284 V334" fill="none" stroke="#0f766e" stroke-width="2.5" marker-end="url(#arrow-green)"/>
+            <path d="M812 226 H898" fill="none" stroke="#344054" stroke-width="2.3" marker-end="url(#arrow)"/>
+            <path d="M1160 206 H1178" fill="none" stroke="#ea580c" stroke-width="2.3" marker-end="url(#arrow-user)"/>
+
+            <path d="M812 390 H858 M858 325 V437 M858 325 H898 M858 437 H898" fill="none" stroke="#98a2b3" stroke-width="1.5"/>
+            <path d="M1140 526 V366" fill="none" stroke="#344054" stroke-width="2.3" marker-end="url(#arrow)"/>
+            <path d="M1110 330 H1038" fill="none" stroke="#344054" stroke-width="2.3" marker-end="url(#arrow)"/>
+            <path d="M968 354 V408" fill="none" stroke="#0f766e" stroke-width="2.4" marker-end="url(#arrow-green)"/>
+
+            <path d="M968 466 V524 H474 V580" fill="none" stroke="#344054" stroke-width="2.3" marker-end="url(#arrow)"/>
+            <path d="M352 624 H386" fill="none" stroke="#ea580c" stroke-width="2.4" marker-end="url(#arrow-user)"/>
+            <path d="M558 624 H652" fill="none" stroke="#344054" stroke-width="2.3" marker-end="url(#arrow)"/>
+            <path d="M806 624 H888" fill="none" stroke="#344054" stroke-width="2.3" marker-end="url(#arrow)"/>
+            <path d="M1170 646 H1186" fill="none" stroke="#ea580c" stroke-width="2.3" marker-end="url(#arrow-user)"/>
+          </svg>
+
+          <div class="node" id="input">
+            <span class="tag"><span class="dot"></span>多模态输入</span>
+            <span class="desc">课堂录音、文档、图片、视频和用户笔记</span>
+          </div>
+
+          <div id="storage-frame"><span>物理存储</span></div>
+          <div class="node" id="vec"><span class="tag">向量库</span></div>
+          <div class="node" id="raw"><span class="tag">原始资料</span></div>
+
+          <div class="node major" id="kb">
+            <span class="tag">知识库</span>
+            <span class="desc">沉淀知识点、来源、章节结构与知识关系</span>
+          </div>
+          <div class="node major" id="state">
+            <span class="tag">状态库</span>
+            <span class="desc">记录学习证据、掌握状态和下次建议</span>
+          </div>
+
+          <div class="node detail" id="record"><span class="tag">交互记录</span></div>
+          <div class="node detail" id="memory"><span class="tag">记忆状态</span></div>
+
+          <div class="node" id="notes">
+            <span class="tag"><span class="dot"></span>笔记视图</span>
+            <span class="desc">让课程知识对用户可见、可追溯、可选择</span>
+            <div class="subview">
+              <span>知识图谱视图</span>
+              <span>知识章节视图</span>
+            </div>
+          </div>
+
+          <div class="node llm" id="evaluator">
+            <span class="llm-pill">AI</span>
+            <span class="tag">学习评估器</span>
+          </div>
+
+          <div class="node llm" id="selector">
+            <span class="llm-pill">AI</span>
+            <span class="tag">内容选择器</span>
+            <span class="desc">用户选择 + 系统推荐</span>
+          </div>
+          <div class="node llm" id="orchestrator">
+            <span class="llm-pill">AI</span>
+            <span class="tag">内容编排器</span>
+          </div>
+
+          <div class="node" id="modules">
+            <span class="tag"><span class="dot"></span>模块化交互内容</span>
+            <span class="desc">每个模块都负责采样学习信号</span>
+            <div class="chips">
+              <div class="chip">课堂总结</div>
+              <div class="chip">知识卡片</div>
+              <div class="chip">记忆闪卡</div>
+              <div class="chip">选择题</div>
+              <div class="chip">简答题</div>
+              <div class="chip">语音复述</div>
+              <div class="chip">错因追问</div>
+              <div class="chip">阶段复盘</div>
+            </div>
+          </div>
+
+          <div class="person" id="user-choice">用户</div>
+          <div class="person" id="user-notes">用户</div>
+          <div class="person" id="user-learn">用户</div>
+          <div class="callout" id="call-choice">参与内容选择</div>
+          <div class="callout" id="call-notes">查看笔记和状态</div>
+          <div class="callout" id="call-learn">交互学习过程</div>
+
+          <div class="edge-label green" id="lbl-index">索引状态</div>
+          <div class="edge-label" id="lbl-record">产出记录</div>
+          <div class="edge-label green" id="lbl-write">回写</div>
+          <div class="edge-label" id="lbl-memory">记忆算法 · 到期 / 薄弱 / 优先级</div>
+        </div>
+      </div>
+
+      <div class="legend" aria-label="图例">
+        <span class="legend-item"><span class="swatch"></span>数据流</span>
+        <span class="legend-item"><span class="swatch green"></span>状态 / 索引回写</span>
+        <span class="legend-item"><span class="swatch thin"></span>组成部分</span>
+        <span class="legend-item"><span class="llmkey"></span>AI 编排节点</span>
+        <span class="legend-item">红色路径：用户参与带来新的学习证据</span>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function fitStage() {
+      var stage = document.getElementById("stage");
+      var wrap = stage.parentElement;
+      var scale = Math.min(1, wrap.clientWidth / 1392);
+      stage.style.transform = "scale(" + scale + ")";
+      wrap.style.height = Math.ceil(800 * scale) + "px";
+    }
+
+    window.addEventListener("resize", fitStage);
+    fitStage();
+  </script>
+</body>
+</html>
